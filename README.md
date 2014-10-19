@@ -1,5 +1,8 @@
 # vagrant-dsc
 
+[![Build Status](https://travis-ci.org/mefellows/vagrant-dsc.svg?branch=feature%2Fprototype)](https://travis-ci.org/mefellows/vagrant-dsc)
+[![Coverage Status](https://coveralls.io/repos/mefellows/vagrant-dsc/badge.png)](https://coveralls.io/r/mefellows/vagrant-dsc)
+
 [Desired State Configuration](http://technet.microsoft.com/en-au/library/dn249912.aspx) provisioning plugin for Vagrant, enabling you to quickly configure & bootstrap a Windows Virtual Machine in a repeatable, reliable fashion. 
 
 .NET Devs - no more excuses...
