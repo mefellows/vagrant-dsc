@@ -33,7 +33,7 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # Set of Parameters to pass to the DSC Configuration.
     #
     # To pass in flags, simply set the value to `nil`
-    dsc.configuration_params = {"machineName => "localhost", "-EnableDebug" => nil}
+    dsc.configuration_params = {"machineName" => "localhost", "-EnableDebug" => nil}
 
     # Relative path to a folder containing a pre-generated MOF file.
     #
