@@ -10,66 +10,28 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "win-dev"
+  config.vm.box = "kensykora/windows_2012_r2_standard"
 
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
 
   config.vm.network :forwarded_port, guest: 3389, host: 3389
   config.vm.network :forwarded_port, guest: 5985, host: 5985, id: "winrm", auto_correct: true
-  config.vm.network :forwarded_port, guest: 80, host: 8000 # Port forward for IIS
+  config.vm.network :forwarded_port, guest: 80,   host: 8000, id: "web" # Port forward for IIS
+  config.vm.network :forwarded_port, guest: 8443, host: 443,  id: "ssl" # Port forward for SSL IIS
 
   config.vm.provider "virtualbox" do |v|
     v.gui = true
   end
 
-  $script = <<SCRIPT
-#
-# Script that gets executed on the remote machine
-#
-
-function Write-BootstrapProgress
-{
-    param($message)
-    Write-Host "        ${message}"
-}
-
-# Install Choco if not already installed
-
-if ( (Get-Command "choco" -errorAction SilentlyContinue) ) {
-    Write-BootstrapProgress "Chocolatey already installed. Skipping."
-} else {
-    Write-BootstrapProgress "Installing Chocolatey"
-    $wc=new-object net.webclient; $wp=[system.net.WebProxy]::GetDefaultProxy(); $wp.UseDefaultCredentials=$true; $wc.Proxy=$wp; iex ($wc.DownloadString('https://chocolatey.org/install.ps1'))
-    # Add to path
-    $env:Path = $env:Path + ";C:\ProgramData\chocolatey\bin"
-    [Environment]::SetEnvironmentVariable( "Path", $env:Path, [System.EnvironmentVariableTarget]::Machine )
-}
-
-Write-BootstrapProgress "Installing required software"
-if ( -Not (Get-Command "Install-Module" -errorAction SilentlyContinue) ) {
-    Write-BootstrapProgress "Installing PSGet"
-    (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
-}
-Install-Module Posh-Git
-
-Write-BootstrapProgress "Installing required packages"
-$packages = @(
-    "git.commandline"
-    "git"
-    "seek-dsc"
-    "NuGet.CommandLine"
-    "invokemsbuild"
-)
-
-Write-BootstrapProgress "Packages installed"
-SCRIPT
-
-  # First pre-configure the machine with required software
-  config.vm.provision "shell", inline: $script
-
   config.vm.provision "dsc" do |dsc|
-    # The (Vagrantfile) relative path(s) to any folder containing DSC Resources
+
+    # Set of module paths relative to the Vagrantfile dir.
+    #
+    # These paths are added to the DSC Configuration running
+    # environment to enable local modules to be addressed.
+    #
+    # @return [Array] Set of relative module paths.
     dsc.module_path = ["manifests", "modules"]
 
     # The path relative to `dsc.manifests_path` pointing to the Configuration file
@@ -81,26 +43,18 @@ SCRIPT
 
     # Commandline arguments to the Configuration run
     # Set of Parameters to pass to the DSC Configuration.
-    dsc.configuration_params = {[:machineName] => "localhost"}
+    dsc.configuration_params = {"MachineName" => "localhost"}
 
     # Relative path to a pre-generated MOF file.
     #
     # Path is relative to the folder containing the Vagrantfile.
-    #dsc.mof_file = "localhost.mof"
+    #dsc.mof_path = "mof"
 
     # Relative path to the folder containing the root Configuration manifest file.
     # Defaults to 'manifests'.
     #
     # Path is relative to the folder containing the Vagrantfile.
     # dsc.manifests_path = "manifests"
-
-    # Set of module paths relative to the Vagrantfile dir.
-    #
-    # These paths are added to the DSC Configuration running
-    # environment to enable local modules to be addressed.
-    #
-    # @return [Array] Set of relative module paths.
-    #dsc.module_path = []
 
     # The type of synced folders to use when sharing the data
     # required for the provisioner to work properly.
