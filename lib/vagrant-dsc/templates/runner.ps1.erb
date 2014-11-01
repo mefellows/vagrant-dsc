@@ -1,0 +1,35 @@
+#
+# DSC Runner.
+#
+# Bootstraps the DSC environment, sets up configuration data
+# and runs the DSC Configuration.
+#
+#
+
+# Set the local PowerShell Module environment path
+<% if options[:module_paths]  %>
+echo "Adding to path: <%= options[:module_paths] %>"
+$env:PSModulePath="<%= options[:module_paths] %>;${env:PSModulePath}"
+<% end %>
+
+$script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file] %>")
+echo "PSModulePath Configured: ${env:PSModulePath}"
+echo "Running Configuration file: ${script}"
+
+# Generate the MOF file, only if a MOF path not already provided.
+<% if options[:mof_path] == nil %>
+# Import the Manifest
+. $script
+
+cd "<%= options[:temp_path] %>"
+$StagingPath = $(Join-Path "<%= options[:temp_path] %>" "staging")
+<%=options[:configuration_name]%> -MachineName "localhost" -OutputPath $StagingPath <%= options[:parameters] %>
+<% else %>
+$StagingPath = "<%= options[:mof_path] %>"
+<% end %>
+
+# Start a DSC Configuration run
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+
+# Cleanup
+del -Path $StagingPath -Recurse

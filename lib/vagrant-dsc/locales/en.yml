@@ -1,0 +1,38 @@
+en:
+  vagrant_dsc:
+    already_status: |-
+      The machine is already %{status}.
+
+    running_dsc: |-
+      "Running DSC Provisioner with %{manifest}..."
+
+    will_not_destroy: |-
+      The instance '%{name}' will not be destroyed, since the confirmation
+      was declined.
+
+    config:
+      access_key_id_required: |-
+        An access key ID must be specified via "access_key_id"
+
+    errors:
+      missing_shared_folders: |-
+        Shared folders not properly configured. This is generally resolved by a 'vagrant halt && vagrant up'
+      unsupported_os: |-
+        Vagrant DSC does not work
+      dsc_not_detected: |-
+        Unable to detect a working DSC environment. Please ensure powershell v4+
+        is installed, including WMF 4+.
+      dsc_incorrect_powershell_version: |-
+        Powershell version 4 or greater not installed. Please ensure powershell v4+ is installed, including WMF 4+.
+      module_path_missing: |-
+        "Path to DSC Modules does not exist: %{path}"
+      manifests_path_missing: |-
+        "Path to DSC Manifest folder does not exist: %{path}"
+      manifest_missing: |-
+        "Path to DSC Manifest does not exist: %{manifest}"
+      manifest_and_mof_provided: |-
+        "Cannot provide configuration_file and mof_path at the same time. Please provide only one of the two."
+      unsupported_operation: |-
+        "Operation unsupported / not-yet implemented: %{operation}"
+      absolute_module_path: |-
+        "Absolute 'module_path' not allowed. Please provide a path relative to your Vagrantfile."

@@ -1,0 +1,19 @@
+language: ruby
+before_install:
+- rvm @global do gem uninstall bundler --all --executables
+- gem uninstall bundler --all --executables
+- gem install bundler --version '< 1.7.0'
+rvm:
+- 2.0.0
+- 2.1.0
+- ruby-head
+matrix:
+  allow_failures:
+  - rvm: ruby-head
+  fast_finish: true
+env:
+  matrix:
+  - VAGRANT_VERSION=v1.6.5
+  global:
+    secure: d34dSoYsh9C9tCgAeKp3TIYdxPlrGh1j+x01Igg7Ku0rmmv0f1+NSZOcSpgbf5daXFk1i5mQrRcYjIVOclGAlCXM7IKWfDyefstmYl+2+Hjv4LGJHQNvBTz02MerfKlUef2HMAt3HJsNvwhqvIVrHetC6ZeSaFtupWqhuXWgREQ=
+script: bundle exec rake test:unit
