@@ -96,7 +96,9 @@ module VagrantPlugins
 
         verify_dsc
 
-        run_dsc_apply(generate_dsc_runner_script)
+        write_dsc_runner_script(generate_dsc_runner_script)
+
+        run_dsc_apply
       end
 
       # Cleanup after a destroy action.
@@ -170,6 +172,7 @@ module VagrantPlugins
       # @return [String] the Path to the uploaded location on the guest machine.
       def write_dsc_runner_script(script)
         guest_script_path = DSC_GUEST_RUNNER_PATH
+        # TODO: Get a counter in here in case of multiple runs
         file = Tempfile.new(["vagrant-dsc-runner", "ps1"])
         begin
           file.write(script)
@@ -183,24 +186,9 @@ module VagrantPlugins
         guest_script_path
       end
 
-      # Runs the DSC Configuration over the guest machine.
-      #
-      # Expects
+      # Runs the DSC Configuration on the guest machine.
       def run_dsc_apply
-
-        # Check the DSC_GUEST_RUNNER_PATH exists?
-
-        # Set up Configuration arguments (hostname, manifest/module location, error levels ...)
-
-          # Where are the modules?
-
-          # Where is the manifest
-
-        # TODO: Get a counter in here in case of multiple runs
-
-        # Import starting point configuration into scope
-
-        command = ".\\'#{DSC_GUEST_RUNNER_PATH}'"
+        command = ". '#{DSC_GUEST_RUNNER_PATH}'"
 
         @machine.ui.info(I18n.t(
           "vagrant_dsc.running_dsc",
@@ -209,12 +197,21 @@ module VagrantPlugins
         opts = {
           elevated: true,
           error_key: :ssh_bad_exit_status_muted,
-          good_exit: [0,2],
+          good_exit: 0,
+          shell: :powershell
         }
 
         @machine.communicate.sudo(command, opts) do |type, data|
           if !data.chomp.empty?
-            @machine.ui.info(data.chomp)
+            if [:stderr, :stdout].include?(type)
+              # Output the data with the proper color based on the stream.
+              # TODO: Seems the WinRM communicator or a bug in my powershell code
+              # precludes from errors coming back in the :stderr stream
+              color = type == :stdout ? :green : :red
+              @machine.ui.info(
+                data.chomp,
+                color: color, new_line: false, prefix: false)
+            end
           end
         end
       end

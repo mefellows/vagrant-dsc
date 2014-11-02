@@ -15,12 +15,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
 
-  config.vm.network :forwarded_port, guest: 3389, host: 3389
   config.vm.network :forwarded_port, guest: 5985, host: 5985, id: "winrm", auto_correct: true
   config.vm.network :forwarded_port, guest: 80,   host: 8000, id: "web" # Port forward for IIS
   config.vm.network :forwarded_port, guest: 8443, host: 443,  id: "ssl" # Port forward for SSL IIS
 
   config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--vram", "128"]
     v.gui = true
   end
 
@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Commandline arguments to the Configuration run
     # Set of Parameters to pass to the DSC Configuration.
-    dsc.configuration_params = {"MachineName" => "localhost"}
+    dsc.configuration_params = {"-MachineName" => "localhost"}
 
     # Relative path to a pre-generated MOF file.
     #

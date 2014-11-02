@@ -127,6 +127,7 @@ describe VagrantPlugins::DSC::Provisioner do
     it "should allow reboot capability when capability exists" do
       allow(communicator).to receive(:sudo)
       allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
@@ -139,6 +140,7 @@ describe VagrantPlugins::DSC::Provisioner do
     it "should not allow reboot capability when capability does not exist" do
       allow(communicator).to receive(:sudo)
       allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
@@ -150,6 +152,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     it "should create temporary folders on the guest" do
       allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
@@ -162,9 +165,28 @@ describe VagrantPlugins::DSC::Provisioner do
       subject.provision
     end
 
+    it "should generate and write the runner script to the guest" do
+      allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
+      allow(subject).to receive(:verify_shared_folders).and_return(true)
+      allow(subject).to receive(:verify_dsc).and_return(true)
+      allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(guest).to receive(:capability?)
+      allow(guest).to receive(:capability)
+
+      expect(communicator).to receive(:sudo).with("mkdir -p #{root_config.temp_dir}")
+      expect(communicator).to receive(:sudo).with("chmod 0777 #{root_config.temp_dir}")
+      expect(subject).to receive(:verify_dsc)
+      expect(subject).to receive(:write_dsc_runner_script)
+      expect(subject).to receive(:run_dsc_apply)
+
+      subject.provision
+    end    
+
     it "should ensure shared folders are properly configured" do
       allow(communicator).to receive(:test)
       allow(communicator).to receive(:sudo)
+      allow(communicator).to receive(:upload)      
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
       allow(guest).to receive(:capability?)
@@ -247,19 +269,13 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-MyWebsite -MachineName \"localhost\" -OutputPath $StagingPath 
+$response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
 
 # Start a DSC Configuration run
-Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-
-# Cleanup
-del -Path $StagingPath -Recurse"
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+$response"
 
         expect(script).to eq(expect_script)
-      end
-
-      it "should skip MOF file generation if one already provided" do
-
       end
     end
 
@@ -290,13 +306,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-MyWebsite -MachineName \"localhost\" -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz\"
+$response = MyWebsite -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz\" 4>&1 5>&1 | Out-String
 
 # Start a DSC Configuration run
-Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-
-# Cleanup
-del -Path $StagingPath -Recurse"
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+$response"
 
         expect(script).to eq(expect_script)
       end
@@ -327,13 +341,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-MyWebsite -MachineName \"localhost\" -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"FooVal\"
+$response = MyWebsite -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"FooVal\" 4>&1 5>&1 | Out-String
 
 # Start a DSC Configuration run
-Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-
-# Cleanup
-del -Path $StagingPath -Recurse"
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+$response"
 
         expect(script).to eq(expect_script)
       end      
@@ -365,10 +377,8 @@ echo \"Running Configuration file: ${script}\"
 $StagingPath = \"staging\"
 
 # Start a DSC Configuration run
-Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-
-# Cleanup
-del -Path $StagingPath -Recurse"
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+$response"
 
         expect(script).to eq(expect_script)
       end
@@ -397,9 +407,19 @@ del -Path $StagingPath -Recurse"
   describe "Apply DSC" do
     it "should invoke the DSC Runner and notify the User of provisioning status" do
       expect(ui).to receive(:info).with(any_args).once
-      expect(ui).to receive(:info).with("provisioned!").once
+      expect(ui).to receive(:info).with("provisioned!", {color: :green, new_line: false, prefix: false}).once
       allow(machine).to receive(:communicate).and_return(communicator)
-      expect(communicator).to receive(:sudo).with('.\\' + "'c:/tmp/vagrant-dsc-runner.ps1'",{:elevated=>true, :error_key=>:ssh_bad_exit_status_muted, :good_exit=>[0, 2]}).and_yield("type", "provisioned!")
+      expect(communicator).to receive(:sudo).with('. ' + "'c:/tmp/vagrant-dsc-runner.ps1'",{:elevated=>true, :error_key=>:ssh_bad_exit_status_muted, :good_exit=>0, :shell=>:powershell}).and_yield(:stdout, "provisioned!")
+
+      subject.run_dsc_apply
+    end
+
+    it "should show error output in red" do
+      expect(ui).to receive(:info).with(any_args).once
+      expect(ui).to receive(:info).with("provisioned!", {color: :red, new_line: false, prefix: false}).once
+      allow(machine).to receive(:communicate).and_return(communicator)
+      expect(communicator).to receive(:sudo).with('. ' + "'c:/tmp/vagrant-dsc-runner.ps1'",{:elevated=>true, :error_key=>:ssh_bad_exit_status_muted, :good_exit=>0, :shell=>:powershell}).and_yield(:stderr, "provisioned!")
+
       subject.run_dsc_apply
     end
   end
