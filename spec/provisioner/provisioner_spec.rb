@@ -256,8 +256,10 @@ describe VagrantPlugins::DSC::Provisioner do
 #
 
 # Set the local PowerShell Module environment path
-echo \"Adding to path: /tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\"
-$env:PSModulePath=\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1;${env:PSModulePath}\"
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -293,8 +295,10 @@ $response"
 #
 
 # Set the local PowerShell Module environment path
-echo \"Adding to path: /tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\"
-$env:PSModulePath=\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1;${env:PSModulePath}\"
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -328,8 +332,10 @@ $response"
 #
 
 # Set the local PowerShell Module environment path
-echo \"Adding to path: /tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\"
-$env:PSModulePath=\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1;${env:PSModulePath}\"
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -348,7 +354,7 @@ $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&
 $response"
 
         expect(script).to eq(expect_script)
-      end      
+      end
     end
 
     context "with a MOF file specified" do
@@ -366,8 +372,10 @@ $response"
 #
 
 # Set the local PowerShell Module environment path
-echo \"Adding to path: /tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\"
-$env:PSModulePath=\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1;${env:PSModulePath}\"
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
 echo \"PSModulePath Configured: ${env:PSModulePath}\"

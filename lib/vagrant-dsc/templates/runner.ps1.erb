@@ -7,7 +7,6 @@
 #
 
 # Set the local PowerShell Module environment path
-
 <% if options[:module_paths]  %>
 $absoluteModulePaths = [string]::Join(";", ("<%= options[:module_paths] %>".Split(";") | ForEach-Object { $_ | Resolve-Path }))
 
