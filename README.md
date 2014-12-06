@@ -65,6 +65,10 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     #dsc.temp_dir = "/tmp/vagrant-dsc"
   end
 ```
+## Example
+
+There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin. 
+This is a great real-life example to get you on your way.
 
 ## Roadmap
 
