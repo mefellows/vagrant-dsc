@@ -7,9 +7,12 @@
 #
 
 # Set the local PowerShell Module environment path
+
 <% if options[:module_paths]  %>
-echo "Adding to path: <%= options[:module_paths] %>"
-$env:PSModulePath="<%= options[:module_paths] %>;${env:PSModulePath}"
+$absoluteModulePaths = [string]::Join(";", ("<%= options[:module_paths] %>".Split(";") | ForEach-Object { $_ | Resolve-Path }))
+
+echo "Adding to path: $absoluteModulePaths"
+$env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
 <% end %>
 
 $script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file] %>")
