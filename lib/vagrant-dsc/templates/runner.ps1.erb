@@ -8,10 +8,15 @@
 
 # Set the local PowerShell Module environment path
 <% if options[:module_paths]  %>
-$absoluteModulePaths = [string]::Join(";", ("<%= options[:module_paths] %>".Split(";") | ForEach-Object { $_ | Resolve-Path }))
+echo "Copying modules to modules folder"
 
-echo "Adding to path: $absoluteModulePaths"
-$env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
+$modulesPath = Join-Path -Path $env:ProgramFiles -ChildPath "WindowsPowerShell\Modules"
+
+"<%= options[:module_paths] %>".Split(";") | ForEach-Object { Copy-Item -Path "$_\*" -Destination $modulesPath -Recurse -Force}
+
+echo "Unblocking modules in modules folder"
+gci $modulesPath | Unblock-File
+
 <% end %>
 
 $script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file] %>")
