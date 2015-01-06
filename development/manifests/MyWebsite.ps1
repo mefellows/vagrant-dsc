@@ -2,6 +2,8 @@ Configuration MyWebsite
 {
   param ($MachineName)
 
+  Import-DscResource -Module CommonConfigModule
+
   Node $MachineName
   {
     #Install the IIS Role
@@ -10,6 +12,12 @@ Configuration MyWebsite
       Ensure = "Present"
       Type = "Directory"
       DestinationPath = "c:\mywebroot"
+    }
+
+    #Test composite resource
+    WebServer WebServer 
+    {
+        
     }
   }
 }
