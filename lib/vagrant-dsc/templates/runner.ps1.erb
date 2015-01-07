@@ -7,7 +7,7 @@
 #
 
 # Set the local PowerShell Module environment path
-<% if options[:module_paths]  %>
+<% if !options[:module_paths].empty?  %>
 $absoluteModulePaths = [string]::Join(";", ("<%= options[:module_paths] %>".Split(";") | ForEach-Object { $_ | Resolve-Path }))
 
 echo "Adding to path: $absoluteModulePaths"
