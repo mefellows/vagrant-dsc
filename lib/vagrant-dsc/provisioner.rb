@@ -160,7 +160,9 @@ module VagrantPlugins
             module_paths: @module_paths.map { |k,v| v }.join(";"),
             mof_path: @config.mof_path,
             configuration_file: @config.configuration_file,
+            configuration_file_path: "#{@config.manifests_path}/#{File.basename @config.configuration_file}",
             configuration_name: @config.configuration_name,
+            manifests_path: @config.manifests_path,
             temp_path: @config.temp_dir,
             parameters: @config.configuration_params.map { |k,v| "#{k}" + (!v.nil? ? " \"#{v}\"": '') }.join(" ")
         })

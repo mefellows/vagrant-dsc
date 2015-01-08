@@ -244,7 +244,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     end
 
-    context "with default parameters" do
+context "with default parameters" do
       it "should generate a valid powershell command" do
         script = subject.generate_dsc_runner_script
         expect_script = "#
@@ -261,7 +261,47 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
-$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
+echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"Running Configuration file: ${script}\"
+
+# Generate the MOF file, only if a MOF path not already provided.
+# Import the Manifest
+. $script
+
+cd \"/tmp/vagrant-dsc-1\"
+$StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
+$response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
+
+# Start a DSC Configuration run
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+$response"
+
+        expect(script).to eq(expect_script)
+      end
+    end
+
+    context "with a relative manifests_path" do
+      it "should generate a valid powershell command" do
+        root_config.manifests_path = "../manifests"
+        root_config.configuration_file = configuration_file
+        
+        script = subject.generate_dsc_runner_script
+        expect_script = "#
+# DSC Runner.
+#
+# Bootstraps the DSC environment, sets up configuration data
+# and runs the DSC Configuration.
+#
+#
+
+# Set the local PowerShell Module environment path
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"../manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"Running Configuration file: ${script}\"
 
@@ -300,7 +340,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
-$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"Running Configuration file: ${script}\"
 
@@ -337,7 +377,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
-$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"Running Configuration file: ${script}\"
 
@@ -377,7 +417,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
-$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\")
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"Running Configuration file: ${script}\"
 

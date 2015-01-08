@@ -101,6 +101,11 @@ describe VagrantPlugins::DSC::Config do
       expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/vagrant/foo/modules"])
     end
 
+    it "should generate a module path on the host machine relative to the Vagrantfile with relative paths" do
+      subject.module_path = "../modules"
+      expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/modules"])
+    end
+
     it "should generate module paths on the host machine relative to the Vagrantfile" do
       subject.module_path = ["dont/exist", "also/dont/exist"]
       expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/vagrant/dont/exist", "/path/to/vagrant/also/dont/exist"])

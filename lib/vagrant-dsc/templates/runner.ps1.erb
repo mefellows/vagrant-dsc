@@ -14,7 +14,7 @@ echo "Adding to path: $absoluteModulePaths"
 $env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
 <% end %>
 
-$script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file] %>")
+$script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file_path] %>" -Resolve)
 echo "PSModulePath Configured: ${env:PSModulePath}"
 echo "Running Configuration file: ${script}"
 
