@@ -260,6 +260,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -300,6 +301,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"../manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -339,6 +341,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -376,6 +379,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -416,6 +420,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
