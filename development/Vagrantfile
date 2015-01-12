@@ -16,7 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "kensykora/windows_2012_r2_standard"
+  config.vm.box = "mfellows/windows2012r2"
 
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
@@ -45,10 +45,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # environment to enable local modules to be addressed.
     #
     # @return [Array] Set of relative module paths.
-    dsc.module_path = ["manifests", "modules"]
+    dsc.module_path = ["modules"]
 
     # The path relative to `dsc.manifests_path` pointing to the Configuration file
-    dsc.configuration_file  = "manifests/MyWebsite.ps1"
+    dsc.configuration_file  = "MyWebsite.ps1"
 
     # The Configuration Command to run. Assumed to be the same as the `dsc.configuration_file`
     # (sans extension) if not provided.
@@ -56,25 +56,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Commandline arguments to the Configuration run
     # Set of Parameters to pass to the DSC Configuration.
-    dsc.configuration_params = {"-MachineName" => "localhost"}
 
     # Relative path to a pre-generated MOF file.
     #
     # Path is relative to the folder containing the Vagrantfile.
-    #dsc.mof_path = "mof"
+    # dsc.mof_path = "mof"
 
     # Relative path to the folder containing the root Configuration manifest file.
     # Defaults to 'manifests'.
     #
     # Path is relative to the folder containing the Vagrantfile.
-    # dsc.manifests_path = "manifests"
+    dsc.manifests_path = "manifests"
+    dsc.configuration_params = {"-MachineName" => "localhost"}
 
     # The type of synced folders to use when sharing the data
     # required for the provisioner to work properly.
     #
     # By default this will use the default synced folder type.
     # For example, you can set this to "nfs" to use NFS synced folders.
-    #dsc.synced_folder_type = ""
+    # dsc.synced_folder_type = ""
 
     # Temporary working directory on the guest machine.
     # dsc.temp_dir = "c:/tmp/vagrant-dsc"
