@@ -2,8 +2,11 @@
 # vi: set ft=ruby :
 
 $shell_script = <<SCRIPT
-  (iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')))>$null 2>&1
-  choco install seek-dsc
+  #(iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')))>$null 2>&1
+  #choco install seek-dsc
+  (New-Object System.Net.WebClient).DownloadFile('https://gallery.technet.microsoft.com/scriptcenter/xWebAdministration-Module-3c8bb6be/file/131367/3/xWebAdministration_1.3.2.zip','c:\\xwebadmin.zip')
+  choco install 7zip
+  & 'C:\\Program Files\\7-Zip\\7z.exe' x C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
   Get-DSCResource
 SCRIPT
 

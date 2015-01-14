@@ -7,24 +7,40 @@
         [HashTable]$AuthenticationInfo = @{Anonymous = "true"; Basic = "false"; Digest = "false"; Windows = "false"}
     )
 
-    Import-DscResource -Module cWebAdministration
+    # Import-DscResource -Module cWebAdministration
+    Import-DscResource -Module xWebAdministration 
 
-    # Create the new Website    
-    cWebsite Basic
-    {
-        Ensure          = 'Present'
-        Name            = $WebAppName
-        PhysicalPath    = $WebAppPath
-        ApplicationPool = "DefaultAppPool"
-        AuthenticationInfo = SEEK_cWebAuthenticationInformation
-        {
-            Anonymous = $AuthenticationInfo.Anonymous
-            Basic = $AuthenticationInfo.Basic
-            Digest = $AuthenticationInfo.Digest
-            Windows = $AuthenticationInfo.Windows
-        }
-        DependsOn  = '[File]website'
+     # Stop the default website 
+    xWebsite DefaultSite  
+    { 
+        Ensure          = "Present" 
+        Name            = "Default Web Site" 
+        State           = "Stopped" 
+        PhysicalPath    = "C:\inetpub\wwwroot" 
+        DependsOn       = "[File]websiteIndex" 
     }
+
+    # Create a Web Application Pool 
+    xWebAppPool NewWebAppPool 
+    { 
+        Name   = "${WebAppName}AppPool"
+        Ensure = "Present" 
+        State  = "Started" 
+    } 
+
+    #Create a New Website with Port 
+    xWebSite NewWebSite 
+    { 
+        Name   = $WebAppName
+        Ensure = "Present" 
+        BindingInfo = MSFT_xWebBindingInformation 
+                    { 
+                        Port = 80
+                    } 
+        PhysicalPath = $WebAppPath
+        State = "Started" 
+        DependsOn = @("[xWebAppPool]NewWebAppPool") 
+    } 
 
     File websiteIndex
     {
