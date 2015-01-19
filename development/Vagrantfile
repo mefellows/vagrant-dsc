@@ -16,7 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "kensykora/windows_2012_r2_standard"
+  config.vm.box = "win2012"
 
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
@@ -25,6 +25,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 80,   host: 8000, id: "web" # Port forward for IIS
   config.vm.network :forwarded_port, guest: 443, host: 8443,  id: "ssl" # Port forward for SSL IIS
   config.vm.network :forwarded_port, guest: 22, host: 9222,  id: "ssh" # Port forward for SSL IIS
+  config.vm.network "private_network", ip: "10.0.0.13"
+
+  if Vagrant.has_plugin?("vagrant-hostsupdater")
+    config.hostsupdater.aliases = ["talent.seek.com.au.dev"]
+  else
+    ui  Vagrant::UI::Colored.new
+    ui.warn("Warning, plugin 'vagrant-hostsupdater' is not installed. You'll have to update your host entries manually.")
+  end
 
   config.vm.provider "virtualbox" do |v|
     v.gui = true
