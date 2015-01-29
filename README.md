@@ -44,13 +44,13 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # Relative path to a folder containing a pre-generated MOF file.
     #
     # Path is relative to the folder containing the Vagrantfile.
-    #dsc.mof_path = "mof_output"
+    dsc.mof_path = "mof_output"
 
     # Relative path to the folder containing the root Configuration manifest file.
     # Defaults to 'manifests'.
     #
     # Path is relative to the folder containing the Vagrantfile.
-    # dsc.manifests_path = "manifests"
+    dsc.manifests_path = "manifests"
 
     # Set of module paths relative to the Vagrantfile dir.
     #
@@ -58,17 +58,17 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # environment to enable local modules to be addressed.
     #
     # @return [Array] Set of relative module paths.
-    #dsc.module_path = ["manifests", "modules"]
+    dsc.module_path = ["manifests", "modules"]
 
     # The type of synced folders to use when sharing the data
     # required for the provisioner to work properly.
     #
     # By default this will use the default synced folder type.
     # For example, you can set this to "nfs" to use NFS synced folders.
-    #dsc.synced_folder_type = ""
+    dsc.synced_folder_type = "nfs"
 
     # Temporary working directory on the guest machine.
-    #dsc.temp_dir = "/tmp/vagrant-dsc"
+    dsc.temp_dir = "/tmp/vagrant-dsc"
   end
 ```
 ## Example
