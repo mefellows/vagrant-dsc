@@ -13,6 +13,12 @@ Configuration MyWebsite
         Name = "Web-Server"
     }
 
+    WindowsFeature IISManagerFeature
+    {
+        Ensure = "Present"
+        Name = "Web-Mgmt-Tools"
+    }    
+
     cFirewallRule webFirewall
     {
         Name = "WebFirewallOpen"

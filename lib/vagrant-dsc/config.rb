@@ -24,6 +24,13 @@ module VagrantPlugins
       # Path is relative to the folder containing the Vagrantfile.
       attr_accessor :configuration_file
 
+      # Relative path to the DSC Configuration Data file.
+      # 
+      # Configuration data is used to parameterise the configuration_file.
+      #
+      # Path is relative to the folder containing the Vagrantfile.
+      attr_accessor :configuration_data_file
+
       # Relative path to the folder containing the root Configuration manifest file.
       # Defaults to 'manifests'.
       #
@@ -59,17 +66,23 @@ module VagrantPlugins
       # Do not override this.
       attr_accessor :expanded_configuration_file
 
+      # Fully qualified path to the configuration data file.
+      #
+      # Do not override this.
+      attr_accessor :expanded_configuration_data_file
+
       def initialize
         super
 
-        @configuration_file     = UNSET_VALUE
-        @manifests_path         = UNSET_VALUE
-        @configuration_name     = UNSET_VALUE
-        @mof_path               = UNSET_VALUE
-        @module_path            = UNSET_VALUE
-        @configuration_params   = {}
-        @synced_folder_type     = UNSET_VALUE
-        @temp_dir               = UNSET_VALUE
+        @configuration_file       = UNSET_VALUE
+        @configuration_data_file  = UNSET_VALUE
+        @manifests_path           = UNSET_VALUE
+        @configuration_name       = UNSET_VALUE
+        @mof_path                 = UNSET_VALUE
+        @module_path              = UNSET_VALUE
+        @configuration_params     = {}
+        @synced_folder_type       = UNSET_VALUE
+        @temp_dir                 = UNSET_VALUE
         @logger = Log4r::Logger.new("vagrant::vagrant_dsc")
       end
 
@@ -81,13 +94,14 @@ module VagrantPlugins
         super
 
         # Null checks
-        @configuration_file = "default.ps1" if @configuration_file == UNSET_VALUE
-        @module_path        = nil if @module_path == UNSET_VALUE
-        @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
-        @temp_dir           = nil if @temp_dir == UNSET_VALUE
-        @mof_path           = nil if @mof_path == UNSET_VALUE
-        @configuration_name = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
-        @manifests_path     = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE
+        @configuration_file       = "default.ps1" if @configuration_file == UNSET_VALUE
+        @configuration_data_file  = nil if @configuration_data_file == UNSET_VALUE
+        @module_path              = nil if @module_path == UNSET_VALUE
+        @synced_folder_type       = nil if @synced_folder_type == UNSET_VALUE
+        @temp_dir                 = nil if @temp_dir == UNSET_VALUE
+        @mof_path                 = nil if @mof_path == UNSET_VALUE
+        @configuration_name       = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
+        @manifests_path           = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE
 
         # Can't supply them both!
         if (@configuration_file != nil && @mof_path != nil)
@@ -127,29 +141,49 @@ module VagrantPlugins
       # @param [Machine] The current {Machine}
       # @return [Hash] Any errors or {} if no errors found
       def validate(machine)
-        @logger.info("==> Configurin' DSC man!")
+        @logger.info("==> Configuring DSC")
         errors = _detected_errors
 
         # Calculate the manifests and module paths based on env
-        this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
+        local_expanded_module_paths = expanded_module_paths(machine.env.root_path)
 
         # Manifest file validation
-        this_expanded_module_paths.each do |path|
+        local_expanded_module_paths.each do |path|
           errors << I18n.t("vagrant_dsc.errors.module_path_missing", path: path) if !Pathname.new(path).expand_path(machine.env.root_path).directory?
         end
 
-        expanded_path = Pathname.new(manifests_path).
-            expand_path(machine.env.root_path)
+        host_manifest_path = Pathname.new(manifests_path).expand_path(machine.env.root_path)
 
-        if !expanded_path.directory?
+        if !host_manifest_path.directory?
           errors << I18n.t("vagrant_dsc.errors.manifests_path_missing",
-                           path: expanded_path.to_s)
+                           path: host_manifest_path.to_s)
         end
 
-        @expanded_configuration_file = expanded_path.join(File.basename(configuration_file))
-        if !expanded_configuration_file.file? && !expanded_configuration_file.directory?
+        # Path to manifest file on the host machine must exist
+        host_expanded_configuration_file = host_manifest_path.join(File.basename(configuration_file))
+        if !host_expanded_configuration_file.file? && !host_expanded_configuration_file.directory?
           errors << I18n.t("vagrant_dsc.errors.manifest_missing",
-                           manifest: expanded_configuration_file.to_s)
+                           manifest: host_expanded_configuration_file.to_s)
+        end
+
+        # Set absolute path to manifest file on the guest
+        @expanded_configuration_file = Pathname.new(File.dirname(configuration_file)).expand_path(temp_dir).join(File.basename(configuration_file))
+
+        # Check path of the configuration data file on host
+        if configuration_data_file != nil
+
+          host_expanded_path = Pathname.new(File.dirname(configuration_data_file)).expand_path(machine.env.root_path)
+          expanded_host_configuration_data_file = host_expanded_path.join(File.basename(configuration_data_file))
+
+          if !expanded_host_configuration_data_file.file? && !expanded_host_configuration_data_file.directory?
+            errors << I18n.t("vagrant_dsc.errors.configuration_data_missing",
+                             path: expanded_host_configuration_data_file.to_s)
+          end
+
+          @expanded_configuration_data_file = Pathname.new(File.dirname(configuration_data_file)).expand_path(temp_dir).join(File.basename(configuration_data_file))
+
+          # Add -ConfigurationData flag to parameters
+          configuration_params["-ConfigurationData"] = expanded_configuration_data_file if @expanded_configuration_data_file != nil 
         end
 
         { "dsc provisioner" => errors }

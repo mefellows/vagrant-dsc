@@ -6,7 +6,7 @@ $shell_script = <<SCRIPT
   #choco install seek-dsc
   (New-Object System.Net.WebClient).DownloadFile('https://gallery.technet.microsoft.com/scriptcenter/xWebAdministration-Module-3c8bb6be/file/131367/3/xWebAdministration_1.3.2.zip','c:\\xwebadmin.zip')
   choco install 7zip
-  & 'C:\\Program Files\\7-Zip\\7z.exe' x C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
+  7za.exe x -y C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
   Get-DSCResource
 SCRIPT
 
@@ -19,7 +19,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "mfellows/windows2012r2"
+  # config.vm.box = "mfellows/windows2012r2"
+  # config.vm.box_version = "1.0.1"
+  config.vm.box = "windows2012r2"
 
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
@@ -53,12 +55,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # The path relative to `dsc.manifests_path` pointing to the Configuration file
     dsc.configuration_file  = "MyWebsite.ps1"
 
+    # The path relative to Vagrantfile pointing to the Configuration Data file
+    dsc.configuration_data_file  = "manifests/MyConfig.psd1"
+
     # The Configuration Command to run. Assumed to be the same as the `dsc.configuration_file`
     # (sans extension) if not provided.
     dsc.configuration_name = "MyWebsite"
-
-    # Commandline arguments to the Configuration run
-    # Set of Parameters to pass to the DSC Configuration.
 
     # Relative path to a pre-generated MOF file.
     #
@@ -70,6 +72,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #
     # Path is relative to the folder containing the Vagrantfile.
     dsc.manifests_path = "manifests"
+
+    # Commandline arguments to the Configuration run
+    #
+    # Set of Parameters to pass to the DSC Configuration.
     dsc.configuration_params = {"-MachineName" => "localhost"}
 
     # The type of synced folders to use when sharing the data
