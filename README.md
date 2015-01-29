@@ -35,6 +35,12 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # To pass in flags, simply set the value to `nil`
     dsc.configuration_params = {"-MachineName" => "localhost", "-EnableDebug" => nil}
 
+    # A path relative to the Vagrantfile pointing to a Configuration Data file.
+    #
+    # See https://technet.microsoft.com/en-us/library/dn249925.aspx for details
+    # on how to parameterise your Configuration files.
+    dsc.configuration_data_file  = "manifests/MyConfig.psd1"
+
     # Relative path to a folder containing a pre-generated MOF file.
     #
     # Path is relative to the folder containing the Vagrantfile.
@@ -69,6 +75,10 @@ In your Vagrantfile, add the following plugin and configure to your needs:
 
 There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin. 
 This is a great real-life example to get you on your way.
+
+## Creating Windows Vagrant boxes
+
+Look at some example Packer templates [here](https://github.com/mefellows/packer-windows-templates/).
 
 ## Roadmap
 
