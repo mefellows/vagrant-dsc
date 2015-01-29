@@ -33,4 +33,5 @@ $StagingPath = "<%= options[:mof_path] %>"
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\*.mof
 $response

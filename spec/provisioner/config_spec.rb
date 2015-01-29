@@ -29,16 +29,17 @@ describe VagrantPlugins::DSC::Config do
 
     before { subject.finalize! }
 
-    its("configuration_file")   { expect = "default.ps1" }
-    its("manifests_path")       { expect = "." }
-    its("configuration_name")   { expect = "default" }
-    its("mof_path")             { expect be_nil }
-    its("module_path")          { expect be_nil }
-    its("options")              { expect = [] }
-    its("configuration_params") { expect = {} }
-    its("synced_folder_type")   { expect be_nil }
-    its("temp_dir")             { expect match /^\/tmp\/vagrant-dsc-*/ }
-    its("working_directory")    { expect be_nil }
+    its("configuration_file")       { expect = "default.ps1" }
+    its("configuration_data_file")  { expect be_nil }
+    its("manifests_path")           { expect = "." }
+    its("configuration_name")       { expect = "default" }
+    its("mof_path")                 { expect be_nil }
+    its("module_path")              { expect be_nil }
+    its("options")                  { expect = [] }
+    its("configuration_params")     { expect = {} }
+    its("synced_folder_type")       { expect be_nil }
+    its("temp_dir")                 { expect match /^\/tmp\/vagrant-dsc-*/ }
+    its("working_directory")        { expect be_nil }
   end
 
   describe "derived settings" do
@@ -72,8 +73,7 @@ describe VagrantPlugins::DSC::Config do
       subject.finalize!
       subject.validate(machine)
 
-      basePath = File.absolute_path(File.join(File.dirname(__FILE__), '../../'))
-      expect(subject.expanded_configuration_file.to_s).to eq("#{basePath}/manifests/MyWebsite.ps1")
+      expect(subject.expanded_configuration_file.to_s).to eq("#{subject.temp_dir}/manifests/MyWebsite.ps1")
     end
   end
 
@@ -119,9 +119,30 @@ describe VagrantPlugins::DSC::Config do
 
     it "should be invalid if 'configuration_file' is not a real file" do
       subject.manifests_path = "/"
-      subject.configuration_file = "notexist.pp"
+      subject.configuration_file = "notexist.ps1"
       assert_invalid
-      assert_error("\"Path to DSC Manifest does not exist: /notexist.pp\"")
+      assert_error("\"Path to DSC Manifest does not exist: /notexist.ps1\"")
+    end
+
+    it "should be invalid if 'configuration_data_file' is not a real file" do
+      subject.manifests_path = "/"
+      subject.configuration_data_file = "/oeu/aoeu/notexist.psd1"
+      assert_invalid
+      assert_error("\"Path to DSC Configuration Data file does not exist: /oeu/aoeu/notexist.psd1\"")
+    end
+
+    it "should detect the fully qualified path to the configuration data file automatically" do
+      env = double("environment", root_path: "")
+      config = double("config")
+      machine.stub(config: config, env: env)
+      allow(machine).to receive(:root_path).and_return(".")
+
+      subject.configuration_data_file = "manifests/foo.psd1"
+
+      subject.finalize!
+      subject.validate(machine)
+
+      expect(subject.expanded_configuration_data_file.to_s).to eq("#{subject.temp_dir}/manifests/foo.psd1")
     end
 
     it "should be invalid if 'module_path' is not a real directory" do

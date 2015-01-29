@@ -6,17 +6,18 @@ require 'rspec/its'
 describe VagrantPlugins::DSC::Provisioner do
   include_context "unit"
 
-  let(:root_path)           { (Pathname.new(Dir.mktmpdir)).to_s }
-  let(:ui)                  { Vagrant::UI::Silent.new }
-  let(:machine)             { double("machine", ui: ui) }
-  let(:env)                 { double("environment", root_path: root_path, ui: ui) }
-  let(:vm)                  { double ("vm") }
-  let(:communicator)        { double ("communicator") }
-  let(:guest)               { double ("guest") }
-  let(:configuration_file)  { "manifests/MyWebsite.ps1" }
-  let(:module_path)         { ["foo/modules", "foo/modules2"] }
-  let(:root_config)         { VagrantPlugins::DSC::Config.new }
-  subject                   { described_class.new machine, root_config }
+  let(:root_path)               { (Pathname.new(Dir.mktmpdir)).to_s }
+  let(:ui)                      { Vagrant::UI::Silent.new }
+  let(:machine)                 { double("machine", ui: ui) }
+  let(:env)                     { double("environment", root_path: root_path, ui: ui) }
+  let(:vm)                      { double ("vm") }
+  let(:communicator)            { double ("communicator") }
+  let(:guest)                   { double ("guest") }
+  let(:configuration_file)      { "manifests/MyWebsite.ps1" }
+  let(:configuration_data_file) { "manifests/MyConfig.psd1" }
+  let(:module_path)             { ["foo/modules", "foo/modules2"] }
+  let(:root_config)             { VagrantPlugins::DSC::Config.new }
+  subject                       { described_class.new machine, root_config }
 
   describe "configure" do
     before do
@@ -223,7 +224,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     it "should raise an error if Powershell version is invalid" do
 
-    end
+    end    
   end
 
   describe "DSC runner script" do
@@ -244,7 +245,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     end
 
-context "with default parameters" do
+    context "with default parameters" do
       it "should generate a valid powershell command" do
         script = subject.generate_dsc_runner_script
         expect_script = "#
@@ -276,6 +277,7 @@ $response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
 $response"
 
         expect(script).to eq(expect_script)
@@ -317,6 +319,7 @@ $response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
 $response"
 
         expect(script).to eq(expect_script)
@@ -357,6 +360,7 @@ $response = MyWebsite -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
 $response"
 
         expect(script).to eq(expect_script)
@@ -395,6 +399,7 @@ $response = MyWebsite -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"Foo
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
 $response"
 
         expect(script).to eq(expect_script)
@@ -431,11 +436,70 @@ $StagingPath = \"staging\"
 
 # Start a DSC Configuration run
 $response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
 $response"
 
         expect(script).to eq(expect_script)
       end
     end
+
+    context "with -ConfigurationData" do
+      before do
+        # Prevent counters messing with output in tests
+        Vagrant::Util::Counter.class_eval do
+          def get_and_update_counter(name=nil) 1 end
+        end
+
+        allow(machine).to receive(:root_config).and_return(root_config)
+        root_config.configuration_file = configuration_file
+        root_config.configuration_data_file = configuration_data_file
+        machine.stub(config: root_config, env: env)
+        root_config.module_path = module_path
+        root_config.configuration_file = configuration_file
+        root_config.finalize!
+        root_config.validate(machine)
+        subject.configure(root_config)
+
+      end
+
+      it "should pass in the location of" do
+        script = subject.generate_dsc_runner_script
+        expect_script = "#
+# DSC Runner.
+#
+# Bootstraps the DSC environment, sets up configuration data
+# and runs the DSC Configuration.
+#
+#
+
+# Set the local PowerShell Module environment path
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
+
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
+echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"Running Configuration file: ${script}\"
+
+# Generate the MOF file, only if a MOF path not already provided.
+# Import the Manifest
+. $script
+
+cd \"/tmp/vagrant-dsc-1\"
+$StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
+$response = MyWebsite -OutputPath $StagingPath -ConfigurationData \"/tmp/vagrant-dsc-1/manifests/MyConfig.psd1\" 4>&1 5>&1 | Out-String
+
+# Start a DSC Configuration run
+$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
+del $StagingPath\\*.mof
+$response"
+
+        expect(script).to eq(expect_script)
+      end
+    end
+
   end
 
   describe "write DSC Runner script" do
