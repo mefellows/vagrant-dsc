@@ -22,6 +22,7 @@ In your Vagrantfile, add the following plugin and configure to your needs:
 
 ```ruby
   config.vm.provision "dsc" do |dsc|
+  
     # The path relative to `dsc.manifests_path` pointing to the Configuration file
     dsc.configuration_file  = "MyWebsite.ps1"
 
