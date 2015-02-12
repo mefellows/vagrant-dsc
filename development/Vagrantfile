@@ -6,7 +6,7 @@ $shell_script = <<SCRIPT
   #choco install seek-dsc
   (New-Object System.Net.WebClient).DownloadFile('https://gallery.technet.microsoft.com/scriptcenter/xWebAdministration-Module-3c8bb6be/file/131367/3/xWebAdministration_1.3.2.zip','c:\\xwebadmin.zip')
   choco install 7zip
-  7za.exe x -y C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
+  & 'C:\\Program Files\\7-Zip\\7z.exe' x -y C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
   Get-DSCResource
 SCRIPT
 
