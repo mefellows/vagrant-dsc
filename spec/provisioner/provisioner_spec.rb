@@ -11,6 +11,7 @@ describe VagrantPlugins::DSC::Provisioner do
   let(:machine)                 { double("machine", ui: ui) }
   let(:env)                     { double("environment", root_path: root_path, ui: ui) }
   let(:vm)                      { double ("vm") }
+  let(:shell)                   { double ("shell") }
   let(:communicator)            { double ("communicator") }
   let(:guest)                   { double ("guest") }
   let(:configuration_file)      { "manifests/MyWebsite.ps1" }
@@ -523,19 +524,24 @@ $response"
 
   describe "Apply DSC" do
     it "should invoke the DSC Runner and notify the User of provisioning status" do
-      expect(ui).to receive(:info).with(any_args).once
-      expect(ui).to receive(:info).with("provisioned!", {color: :green, new_line: false, prefix: false}).once
+      allow(communicator).to receive(:shell).and_return(shell)
       allow(machine).to receive(:communicate).and_return(communicator)
-      expect(communicator).to receive(:sudo).with('. ' + "'c:/tmp/vagrant-dsc-runner.ps1'",{:elevated=>true, :error_key=>:ssh_bad_exit_status_muted, :good_exit=>0, :shell=>:powershell}).and_yield(:stdout, "provisioned!")
+      expect(shell).to receive(:powershell).with("powershell -ExecutionPolicy Bypass -OutputFormat Text -file c:/tmp/vagrant-dsc-runner.ps1").and_yield(:stdout, "provisioned!")
+      root_config.configuration_file = configuration_file
+      expect(ui).to receive(:info).with("\"Running DSC Provisioner with manifests/MyWebsite.ps1...\"")
+      expect(ui).to receive(:info).with("provisioned!", {color: :green, new_line: false, prefix: false}).once
 
       subject.run_dsc_apply
     end
 
     it "should show error output in red" do
-      expect(ui).to receive(:info).with(any_args).once
-      expect(ui).to receive(:info).with("provisioned!", {color: :red, new_line: false, prefix: false}).once
       allow(machine).to receive(:communicate).and_return(communicator)
-      expect(communicator).to receive(:sudo).with('. ' + "'c:/tmp/vagrant-dsc-runner.ps1'",{:elevated=>true, :error_key=>:ssh_bad_exit_status_muted, :good_exit=>0, :shell=>:powershell}).and_yield(:stderr, "provisioned!")
+      allow(communicator).to receive(:shell).and_return(shell)
+
+      root_config.configuration_file = configuration_file
+      expect(ui).to receive(:info).with("\"Running DSC Provisioner with manifests/MyWebsite.ps1...\"")
+      expect(ui).to receive(:info).with("not provisioned!", {color: :red, new_line: false, prefix: false}).once
+      expect(shell).to receive(:powershell).with("powershell -ExecutionPolicy Bypass -OutputFormat Text -file c:/tmp/vagrant-dsc-runner.ps1").and_yield(:stderr, "not provisioned!")
 
       subject.run_dsc_apply
     end

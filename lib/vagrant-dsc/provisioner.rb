@@ -191,32 +191,28 @@ module VagrantPlugins
 
       # Runs the DSC Configuration on the guest machine.
       def run_dsc_apply
-        command = ". '#{DSC_GUEST_RUNNER_PATH}'"
 
         @machine.ui.info(I18n.t(
           "vagrant_dsc.running_dsc",
           manifest: config.configuration_file))
 
-        opts = {
-          elevated: true,
-          error_key: :ssh_bad_exit_status_muted,
-          good_exit: 0,
-          shell: :powershell
-        }
-
-        @machine.communicate.sudo(command, opts) do |type, data|
+        # A bit of an ugly dance, but this is how we get neat, colourised output and exit codes from a Powershell run
+        last_type = nil
+        new_line = ""
+        error = false
+        machine.communicate.shell.powershell("powershell -ExecutionPolicy Bypass -OutputFormat Text -file #{DSC_GUEST_RUNNER_PATH}") do |type, data|
           if !data.chomp.empty?
+            error = true if type == :stderr
             if [:stderr, :stdout].include?(type)
-              # Output the data with the proper color based on the stream.
-              # TODO: Seems the WinRM communicator or a bug in my powershell code
-              # precludes from errors coming back in the :stderr stream
               color = type == :stdout ? :green : :red
-              @machine.ui.info(
-                data.chomp,
-                color: color, new_line: false, prefix: false)
+              new_line = "\r\n" if last_type != nil and last_type != type
+              last_type = type
+              @machine.ui.info( new_line + data.chomp, color: color, new_line: false, prefix: false)
             end
           end
         end
+
+        error == false
       end
 
       # Verify that the shared folders have been properly configured
