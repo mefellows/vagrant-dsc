@@ -274,12 +274,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-$response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
+MyWebsite -OutputPath $StagingPath 
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
@@ -316,12 +315,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-$response = MyWebsite -OutputPath $StagingPath  4>&1 5>&1 | Out-String
+MyWebsite -OutputPath $StagingPath 
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
@@ -357,12 +355,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-$response = MyWebsite -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz\" 4>&1 5>&1 | Out-String
+MyWebsite -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz\"
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
@@ -396,12 +393,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-$response = MyWebsite -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"FooVal\" 4>&1 5>&1 | Out-String
+MyWebsite -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"FooVal\"
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
@@ -436,9 +432,8 @@ echo \"Running Configuration file: ${script}\"
 $StagingPath = \"staging\"
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
@@ -490,12 +485,11 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-$response = MyWebsite -OutputPath $StagingPath -ConfigurationData \"/tmp/vagrant-dsc-1/manifests/MyConfig.psd1\" 4>&1 5>&1 | Out-String
+MyWebsite -OutputPath $StagingPath -ConfigurationData \"/tmp/vagrant-dsc-1/manifests/MyConfig.psd1\"
 
 # Start a DSC Configuration run
-$response += Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath 4>&1 5>&1 | Out-String
-del $StagingPath\\*.mof
-$response"
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof"
 
         expect(script).to eq(expect_script)
       end
