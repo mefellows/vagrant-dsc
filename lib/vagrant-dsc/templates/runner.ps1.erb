@@ -26,7 +26,10 @@ echo "Running Configuration file: ${script}"
 
 cd "<%= options[:temp_path] %>"
 $StagingPath = $(Join-Path "<%= options[:temp_path] %>" "staging")
-<%=options[:configuration_name]%> -OutputPath $StagingPath <%= options[:parameters] %>
+<% if options[:configuration_data_file_path] != nil %>
+$Config = $(iex (Get-Content (Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_data_file_path] %>" -Resolve) | Out-String))
+<% end %>
+<%=options[:configuration_name]%> -OutputPath $StagingPath <%= options[:parameters] %><% if options[:configuration_data_file_path] != nil %> -ConfigurationData $Config<% end %>
 <% else %> 
 $StagingPath = "<%= options[:mof_path] %>"
 <% end %>

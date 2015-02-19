@@ -485,7 +485,8 @@ echo \"Running Configuration file: ${script}\"
 
 cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
-MyWebsite -OutputPath $StagingPath -ConfigurationData \"/tmp/vagrant-dsc-1/manifests/MyConfig.psd1\"
+$Config = $(iex (Get-Content (Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyConfig.psd1\" -Resolve) | Out-String))
+MyWebsite -OutputPath $StagingPath  -ConfigurationData $Config
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath

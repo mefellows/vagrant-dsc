@@ -181,9 +181,6 @@ module VagrantPlugins
           end
 
           @expanded_configuration_data_file = Pathname.new(File.dirname(configuration_data_file)).expand_path(temp_dir).join(File.basename(configuration_data_file))
-
-          # Add -ConfigurationData flag to parameters
-          configuration_params["-ConfigurationData"] = expanded_configuration_data_file if @expanded_configuration_data_file != nil 
         end
 
         { "dsc provisioner" => errors }
