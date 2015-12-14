@@ -22,7 +22,7 @@ In your Vagrantfile, add the following plugin and configure to your needs:
 
 ```ruby
   config.vm.provision "dsc" do |dsc|
-  
+
     # The path relative to `dsc.manifests_path` pointing to the Configuration file
     dsc.configuration_file  = "MyWebsite.ps1"
 
@@ -74,7 +74,7 @@ In your Vagrantfile, add the following plugin and configure to your needs:
 ```
 ## Example
 
-There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin. 
+There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin.
 This is a great real-life example to get you on your way.
 
 ## Creating Windows Vagrant boxes
@@ -107,10 +107,35 @@ We may consider automatically installing and configuring DSC in a future release
 
 ```vagrant plugin uninstall vagrant-dsc```
 
+## Development
+
+Before getting started, read the Vagrant plugin [development basics](https://docs.vagrantup.com/v2/plugins/development-basics.html) and [packaging](https://docs.vagrantup.com/v2/plugins/packaging.html] documentation.
+
+You will need Ruby 1.9.3+ and Bundler installed before proceeding.
+
+```
+git clone git@github.com:mefellows/vagrant-dsc.git
+cd vagrant-dsc
+bundle install
+```
+
+Run tests:
+```
+bundle exec rake spec
+```
+
+Run Vagrant in context of current vagrant-dsc plugin:
+```
+cd <directory>
+bundle exec vagrant up
+```
+
+There is a test Vagrant DSC setup in `./development` that is a good example of a simple acceptance test.
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/vagrant-dsc/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Squash commits & push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+1. Create your feature branch (`git checkout -b my-new-feature`)
+1. Commit your changes, including relevant tests (`git commit -am 'Add some feature'`)
+1. Squash commits & push to the branch (`git push origin my-new-feature`)
+1. Create a new Pull Request
