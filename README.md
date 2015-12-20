@@ -45,6 +45,9 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # Relative path to a folder containing a pre-generated MOF file.
     #
     # Path is relative to the folder containing the Vagrantfile.
+    # When set, `configuration_name`, `configuration_data_file_path`,
+    # `configuration_file_path`, `configuration_data_file` and
+    # `manifests_path` are ignored.
     dsc.mof_path = "mof_output"
 
     # Relative path to the folder containing the root Configuration manifest file.
@@ -72,6 +75,14 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     dsc.temp_dir = "/tmp/vagrant-dsc"
   end
 ```
+
+### Specifying a MOF file
+
+If `mof_path` is set then `configuration_name`, `configuration_data_file_path`, `configuration_file_path`, `configuration_data_file` and `manifests_path` are all not required, and will be ignored. Once you have a MOF file, you have everything you need (except possibly any paths to modules i.e. `module_paths`) to execute DSC
+
+If you don't know what a MOF file is, you probably don't need it and can safely ignore this setting.
+Vagrant DSC will create and manage it for you automatically.
+
 ## Example
 
 There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin.
