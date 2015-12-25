@@ -105,7 +105,7 @@ The plugin works on older platforms that have a later version of .NET (4.5) and 
 
 As a general guide, configuring your Windows Server
 
-From the [DSC Book](https://onedrive.live.com/view.aspx?cid=7F868AA697B937FE&resid=7F868AA697B937FE!156&app=Word):
+From the [DSC Book](https://www.penflip.com/powershellorg/the-dsc-book):
 
 > **DSC Overview and Requirements**
 > Desired State Configuration (DSC) was first introduced as part of Windows Management Framework (WMF) 4.0, which is preinstalled in Windows 8.1 and Windows Server 2012 R2, and is available for Windows 7, Windows Server 2008 R2, and Windows Server 2012. Because Windows 8.1 is a free upgrade to Windows 8, WMF 4 is not available for Windows 8.
