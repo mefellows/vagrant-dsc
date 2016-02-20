@@ -1,6 +1,6 @@
 Configuration MyWebsite
 {
-  param ($MachineName)
+  param ($MachineName, $HostName)
 
   Import-DscResource -Module MyWebapp
   Import-DscResource -Module cNetworking
@@ -17,7 +17,7 @@ Configuration MyWebsite
     {
         Ensure = "Present"
         Name = "Web-Mgmt-Tools"
-    }    
+    }
 
     cFirewallRule webFirewall
     {
@@ -26,13 +26,14 @@ Configuration MyWebsite
         LocalPort = "80"
         Protocol = "TCP"
         Action = "Allow"
-        Ensure = "Present"   
+        Ensure = "Present"
     }
 
     SimpleWebsite sWebsite
     {
-        WebAppPath = "c:\my-new-webapp"
+        WebAppPath = "c:\MyWebApp"
         DependsOn  = '[cWebsite]DefaultWebsite'
-    }    
+        HostName = $HostName
+    }
   }
 }

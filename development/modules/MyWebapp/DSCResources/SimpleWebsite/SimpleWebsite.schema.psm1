@@ -1,60 +1,46 @@
-﻿Configuration SimpleWebsite
+Configuration SimpleWebsite
 {
     param
     (
-        [String]$WebAppPath = "c:\myWebApp",
-        [String]$WebAppName = "MyWebApp",
+        [String]$WebAppPath             = "c:\myWebApp",
+        [String]$WebSiteName            = "MyWebApp",
+        [String]$HostNameSuffix         = "local",
+        [String]$HostName               = "vagrantdsc.${HostNameSuffix}",
+        [String]$ApiAppPoolName         = "MyWebAppPool",
         [HashTable]$AuthenticationInfo = @{Anonymous = "true"; Basic = "false"; Digest = "false"; Windows = "false"}
     )
 
-    # Import-DscResource -Module cWebAdministration
-    Import-DscResource -Module xWebAdministration 
+    Import-DscResource -Module cWebAdministration
+    Import-DscResource -Module cNetworking
 
-     # Stop the default website 
-    xWebsite DefaultSite  
-    { 
-        Ensure          = "Present" 
-        Name            = "Default Web Site" 
-        State           = "Stopped" 
-        PhysicalPath    = "C:\inetpub\wwwroot" 
-        DependsOn       = "[File]websiteIndex" 
+    # Stop the default website
+    cWebsite DefaultSite
+    {
+        Ensure          = "Absent"
+        Name            = "Default Web Site"
+        State           = "Stopped"
+        PhysicalPath    = "C:\inetpub\wwwroot"
     }
 
-    # Create a Web Application Pool 
-    xWebAppPool NewWebAppPool 
-    { 
-        Name   = "${WebAppName}AppPool"
-        Ensure = "Present" 
-        State  = "Started" 
-    } 
-
-    #Create a New Website with Port 
-    xWebSite NewWebSite 
-    { 
-        Name   = $WebAppName
-        Ensure = "Present" 
-        BindingInfo = MSFT_xWebBindingInformation 
-                    { 
-                        Port = 80
-                    } 
+    cWebsite UrlSvcWebsite
+    {
+        Ensure = "Present"
+        Name   = $WebSiteName
+        BindingInfo = @(SEEK_cWebBindingInformation
+        {
+            Protocol = "http"
+            Port = 80
+            IPAddress = "*"
+        })
+        AuthenticationInfo = SEEK_cWebAuthenticationInformation { Anonymous = "true" }
+        HostFileInfo = @(SEEK_cHostEntryFileInformation
+        {
+            RequireHostFileEntry = $True
+            HostEntryName = $HostName
+            HostIpAddress = "10.0.0.30"
+        })
         PhysicalPath = $WebAppPath
-        State = "Started" 
-        DependsOn = @("[xWebAppPool]NewWebAppPool") 
-    } 
-
-    File websiteIndex
-    {
-      Ensure = "Present"
-      Type = "File"
-      DestinationPath = "$WebAppPath\index.html"
-      SourcePath = "c:\vagrant\website\index.html"
-      DependsOn  = '[File]website'
-    }
-
-    File website
-    {
-      Ensure = "Present"
-      Type = "Directory"
-      DestinationPath = $WebAppPath
+        State = "Started"
+        DependsOn = @("[cWebsite]DefaultSite")
     }
 }

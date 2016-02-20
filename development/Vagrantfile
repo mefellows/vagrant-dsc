@@ -2,11 +2,8 @@
 # vi: set ft=ruby :
 
 $shell_script = <<SCRIPT
-  #(iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')))>$null 2>&1
-  #choco install seek-dsc
-  (New-Object System.Net.WebClient).DownloadFile('https://gallery.technet.microsoft.com/scriptcenter/xWebAdministration-Module-3c8bb6be/file/131367/3/xWebAdministration_1.3.2.zip','c:\\xwebadmin.zip')
-  choco install 7zip
-  & 'C:\\Program Files\\7-Zip\\7z.exe' x -y C:\\xwebadmin.zip -o'C:\\Program Files\\WindowsPowerShell\\Modules'
+  choco install seek-dsc -y
+  Install-WindowsFeature Web-Server
   Get-DSCResource
 SCRIPT
 
@@ -20,15 +17,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "mfellows/windows2012r2"
-  config.vm.box_version = "1.0.1"
+  config.vm.box_version = "1.0.0"
 
+
+  hostname = "vagrantdsc.local"
+  ip_address = "10.0.0.30"
   config.vm.guest = :windows
   config.vm.communicator = "winrm"
-
   config.vm.network :forwarded_port, guest: 5985, host: 5985, id: "winrm", auto_correct: true
   config.vm.network :forwarded_port, guest: 80,   host: 8000, id: "web" # Port forward for IIS
   config.vm.network :forwarded_port, guest: 443, host: 8443,  id: "ssl" # Port forward for SSL IIS
   config.vm.network :forwarded_port, guest: 22, host: 9222,  id: "ssh" # Port forward for SSL IIS
+  config.vm.network "private_network", ip: ip_address
+
+  if Vagrant.has_plugin?("vagrant-multi-hostsupdater")
+    config.multihostsupdater.aliases = {ip_address => [hostname]}
+  end
 
   config.vm.provider "virtualbox" do |v|
     v.gui = true
@@ -38,7 +42,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: $shell_script
 
   # Upload Website
-  config.vm.provision "file", source: "website", destination: "c:\\my-web-app"
+  config.vm.provision "file", source: "website", destination: "c:\\MyWebApp"
 
   # Run DSC
   config.vm.provision "dsc" do |dsc|
@@ -75,7 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Commandline arguments to the Configuration run
     #
     # Set of Parameters to pass to the DSC Configuration.
-    dsc.configuration_params = {"-MachineName" => "localhost"}
+    dsc.configuration_params = {"-MachineName" => "localhost", "-HostName" => "#{hostname}"}
 
     # The type of synced folders to use when sharing the data
     # required for the provisioner to work properly.
