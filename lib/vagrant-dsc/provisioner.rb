@@ -10,7 +10,7 @@ module VagrantPlugins
     end
     class DSCUnsupportedOperation < DSCError
       error_key(:unsupported_operation)
-    end    
+    end
 
     # DSC Provisioner Plugin.
     #
@@ -219,6 +219,10 @@ module VagrantPlugins
       # on the guest machine.
       def verify_shared_folders(folders)
         folders.each do |folder|
+          # Warm up PoSH communicator for new instances - any stderr results
+          # in failure: https://github.com/mefellows/vagrant-dsc/issues/21
+          @machine.communicate.test("test -d #{folder}", sudo: true)
+
           @logger.info("Checking for shared folder: #{folder}")
           if !@machine.communicate.test("test -d #{folder}", sudo: true)
             raise DSCError, :missing_shared_folders

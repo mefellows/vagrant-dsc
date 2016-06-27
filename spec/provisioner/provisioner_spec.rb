@@ -89,7 +89,7 @@ describe VagrantPlugins::DSC::Provisioner do
     it "should raise error if folders not shared" do
       root_config.synced_folder_type = "nfs"
 
-      expect(communicator).to receive(:test).with("test -d foo/modules", {:sudo=>true}).and_return(false)
+      expect(communicator).to receive(:test).twice.with("test -d foo/modules", {:sudo=>true}).and_return(false)
 
       subject.configure(root_config)
 
@@ -100,9 +100,9 @@ describe VagrantPlugins::DSC::Provisioner do
     it "should ensure shared folders are properly shared" do
       root_config.synced_folder_type = "nfs"
 
-      expect(communicator).to receive(:test).with("test -d foo/modules", {:sudo=>true}).and_return(true)
-      expect(communicator).to receive(:test).with("test -d foo/modules2", {:sudo=>true}).and_return(true)
-      expect(communicator).to receive(:test).with("test -d manifests", {:sudo=>true}).and_return(true)
+      expect(communicator).to receive(:test).twice.with("test -d foo/modules", {:sudo=>true}).and_return(true)
+      expect(communicator).to receive(:test).twice.with("test -d foo/modules2", {:sudo=>true}).and_return(true)
+      expect(communicator).to receive(:test).twice.with("test -d manifests", {:sudo=>true}).and_return(true)
 
       subject.configure(root_config)
 
@@ -183,12 +183,12 @@ describe VagrantPlugins::DSC::Provisioner do
       expect(subject).to receive(:run_dsc_apply)
 
       subject.provision
-    end    
+    end
 
     it "should ensure shared folders are properly configured" do
       allow(communicator).to receive(:test)
       allow(communicator).to receive(:sudo)
-      allow(communicator).to receive(:upload)      
+      allow(communicator).to receive(:upload)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
       allow(guest).to receive(:capability?)
@@ -225,7 +225,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     it "should raise an error if Powershell version is invalid" do
 
-    end    
+    end
   end
 
   describe "DSC runner script" do
@@ -288,7 +288,7 @@ del $StagingPath\\*.mof"
       it "should generate a valid powershell command" do
         root_config.manifests_path = "../manifests"
         root_config.configuration_file = configuration_file
-        
+
         script = subject.generate_dsc_runner_script
         expect_script = "#
 # DSC Runner.
