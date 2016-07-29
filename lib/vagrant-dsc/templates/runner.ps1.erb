@@ -17,6 +17,7 @@ $env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
 
 $script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file_path] %>" -Resolve)
 echo "PSModulePath Configured: ${env:PSModulePath}"
+echo ""
 echo "Running Configuration file: ${script}"
 
 # Generate the MOF file, only if a MOF path not already provided.

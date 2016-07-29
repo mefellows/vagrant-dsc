@@ -266,6 +266,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -278,7 +279,8 @@ MyWebsite -OutputPath $StagingPath
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
@@ -307,6 +309,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"../manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -319,7 +322,8 @@ MyWebsite -OutputPath $StagingPath
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
@@ -347,6 +351,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -359,7 +364,8 @@ MyWebsite -OutputPath $StagingPath -Foo \"bar\" -ComputerName \"catz\"
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
@@ -385,6 +391,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -397,7 +404,8 @@ MyWebsite -OutputPath $StagingPath -FooFlag -BarFlag -FooParam \"FooVal\"
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
@@ -426,6 +434,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -433,7 +442,8 @@ $StagingPath = \"staging\"
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
@@ -477,6 +487,7 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
 echo \"Running Configuration file: ${script}\"
 
 # Generate the MOF file, only if a MOF path not already provided.
@@ -490,7 +501,8 @@ MyWebsite -OutputPath $StagingPath  -ConfigurationData $Config
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
-del $StagingPath\\*.mof"
+del $StagingPath\\*.mof
+"
 
         expect(script).to eq(expect_script)
       end
