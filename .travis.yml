@@ -4,7 +4,7 @@ before_install:
 - gem uninstall bundler --all --executables
 - gem install bundler --version '1.12.5'
 rvm:
-- 2.2
+- 2.2.3
 - ruby-head
 matrix:
   allow_failures:
