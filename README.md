@@ -120,7 +120,7 @@ We may consider automatically installing and configuring DSC in a future release
 
 ## Development
 
-Before getting started, read the Vagrant plugin [development basics](https://docs.vagrantup.com/v2/plugins/development-basics.html) and [packaging](https://docs.vagrantup.com/v2/plugins/packaging.html] documentation.
+Before getting started, read the Vagrant plugin [development basics](https://docs.vagrantup.com/v2/plugins/development-basics.html) and [packaging](https://docs.vagrantup.com/v2/plugins/packaging.html) documentation.
 
 You will need Ruby 1.9.3+ and Bundler installed before proceeding.
 
