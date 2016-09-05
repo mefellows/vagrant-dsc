@@ -73,7 +73,7 @@ describe VagrantPlugins::DSC::Config do
       subject.finalize!
       subject.validate(machine)
 
-      expect(subject.expanded_configuration_file.to_s).to eq("#{subject.temp_dir}/manifests/MyWebsite.ps1")
+      expect(subject.expanded_configuration_file.to_s).to match(/(C:)?#{subject.temp_dir}\/manifests\/MyWebsite.ps1$/)
     end
   end
 
@@ -98,17 +98,21 @@ describe VagrantPlugins::DSC::Config do
 
     it "should generate a module path on the host machine relative to the Vagrantfile" do
       subject.module_path = "foo/modules"
-      expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/vagrant/foo/modules"])
+      expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(1)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/vagrant\/foo\/modules/)
     end
 
     it "should generate a module path on the host machine relative to the Vagrantfile with relative paths" do
       subject.module_path = "../modules"
-      expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/modules"])
+      expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(1)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/modules/)
     end
 
     it "should generate module paths on the host machine relative to the Vagrantfile" do
       subject.module_path = ["dont/exist", "also/dont/exist"]
-      expect(subject.expanded_module_paths('/path/to/vagrant/')).to eq(["/path/to/vagrant/dont/exist", "/path/to/vagrant/also/dont/exist"])
+      expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(2)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/vagrant\/dont\/exist/)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[1]).to match(/(C:)?\/path\/to\/vagrant\/also\/dont\/exist/)
     end
 
     it "should be invalid if 'manifests_path' is not a real directory" do
@@ -142,7 +146,7 @@ describe VagrantPlugins::DSC::Config do
       subject.finalize!
       subject.validate(machine)
 
-      expect(subject.expanded_configuration_data_file.to_s).to eq("#{subject.temp_dir}/manifests/foo.psd1")
+      expect(subject.expanded_configuration_data_file.to_s).to match(/(C:)?#{subject.temp_dir}\/manifests\/foo.psd1/)
     end
 
     it "should be invalid if 'module_path' is not a real directory" do
