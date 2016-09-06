@@ -99,40 +99,40 @@ describe VagrantPlugins::DSC::Config do
     it "should generate a module path on the host machine relative to the Vagrantfile" do
       subject.module_path = "foo/modules"
       expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(1)
-      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/vagrant\/foo\/modules/)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/([Cc]:)?\/path\/to\/vagrant\/foo\/modules/)
     end
 
     it "should generate a module path on the host machine relative to the Vagrantfile with relative paths" do
       subject.module_path = "../modules"
       expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(1)
-      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/modules/)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/([Cc]:)?\/path\/to\/modules/)
     end
 
     it "should generate module paths on the host machine relative to the Vagrantfile" do
       subject.module_path = ["dont/exist", "also/dont/exist"]
       expect(subject.expanded_module_paths('/path/to/vagrant/').length).to eq(2)
-      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/(C:)?\/path\/to\/vagrant\/dont\/exist/)
-      expect(subject.expanded_module_paths('/path/to/vagrant/')[1]).to match(/(C:)?\/path\/to\/vagrant\/also\/dont\/exist/)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[0]).to match(/([Cc]:)?\/path\/to\/vagrant\/dont\/exist/)
+      expect(subject.expanded_module_paths('/path/to/vagrant/')[1]).to match(/([Cc]:)?\/path\/to\/vagrant\/also\/dont\/exist/)
     end
 
     it "should be invalid if 'manifests_path' is not a real directory" do
       subject.manifests_path = "/i/do/not/exist"
       assert_invalid
-      assert_error(/\"Path to DSC Manifest folder does not exist: (c:)?\/i\/do\/not\/exist\"/)
+      assert_error(/\"Path to DSC Manifest folder does not exist: ([Cc]:)?\/i\/do\/not\/exist\"/)
     end
 
     it "should be invalid if 'configuration_file' is not a real file" do
       subject.manifests_path = "/"
       subject.configuration_file = "notexist.ps1"
       assert_invalid
-      assert_error(/\"Path to DSC Manifest does not exist: (c:)?\/notexist.ps1\"/)
+      assert_error(/\"Path to DSC Manifest does not exist: ([Cc]:)?\/notexist.ps1\"/)
     end
 
     it "should be invalid if 'configuration_data_file' is not a real file" do
       subject.manifests_path = "/"
       subject.configuration_data_file = "/oeu/aoeu/notexist.psd1"
       assert_invalid
-      assert_error(/\"Path to DSC Configuration Data file does not exist: (c:)?\/oeu\/aoeu\/notexist.psd1\"/)
+      assert_error(/\"Path to DSC Configuration Data file does not exist: ([Cc]:)?\/oeu\/aoeu\/notexist.psd1\"/)
     end
 
     it "should detect the fully qualified path to the configuration data file automatically" do
@@ -146,13 +146,13 @@ describe VagrantPlugins::DSC::Config do
       subject.finalize!
       subject.validate(machine)
 
-      expect(subject.expanded_configuration_data_file.to_s).to match(/(C:)?#{subject.temp_dir}\/manifests\/foo.psd1/)
+      expect(subject.expanded_configuration_data_file.to_s).to match(/([Cc]:)?#{subject.temp_dir}\/manifests\/foo.psd1/)
     end
 
     it "should be invalid if 'module_path' is not a real directory" do
       subject.module_path = "/i/dont/exist"
       assert_invalid
-      assert_error(/\"Path to DSC Modules does not exist: (c:)?\/i\/dont\/exist\"/)
+      assert_error(/\"Path to DSC Modules does not exist: ([Cc]:)?\/i\/dont\/exist\"/)
     end
 
     it "should be invalid if 'configuration_file' and 'mof_path' provided" do
