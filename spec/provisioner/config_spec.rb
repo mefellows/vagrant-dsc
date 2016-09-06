@@ -118,21 +118,21 @@ describe VagrantPlugins::DSC::Config do
     it "should be invalid if 'manifests_path' is not a real directory" do
       subject.manifests_path = "/i/do/not/exist"
       assert_invalid
-      assert_error("\"Path to DSC Manifest folder does not exist: /i/do/not/exist\"")
+      assert_error(/\"Path to DSC Manifest folder does not exist: (c:)?\/i\/do\/not\/exist\"/)
     end
 
     it "should be invalid if 'configuration_file' is not a real file" do
       subject.manifests_path = "/"
       subject.configuration_file = "notexist.ps1"
       assert_invalid
-      assert_error("\"Path to DSC Manifest does not exist: /notexist.ps1\"")
+      assert_error(/\"Path to DSC Manifest does not exist: (c:)?\/notexist.ps1\"/)
     end
 
     it "should be invalid if 'configuration_data_file' is not a real file" do
       subject.manifests_path = "/"
       subject.configuration_data_file = "/oeu/aoeu/notexist.psd1"
       assert_invalid
-      assert_error("\"Path to DSC Configuration Data file does not exist: /oeu/aoeu/notexist.psd1\"")
+      assert_error(/\"Path to DSC Configuration Data file does not exist: (c:)?\/oeu\/aoeu\/notexist.psd1\"/)
     end
 
     it "should detect the fully qualified path to the configuration data file automatically" do
@@ -152,7 +152,7 @@ describe VagrantPlugins::DSC::Config do
     it "should be invalid if 'module_path' is not a real directory" do
       subject.module_path = "/i/dont/exist"
       assert_invalid
-      assert_error("\"Path to DSC Modules does not exist: /i/dont/exist\"")
+      assert_error(/\"Path to DSC Modules does not exist: (c:)?\/i\/dont\/exist\"/)
     end
 
     it "should be invalid if 'configuration_file' and 'mof_path' provided" do
