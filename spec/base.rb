@@ -40,7 +40,7 @@ shared_context "unit" do
   # Asserts that the current (config) validation should fail with a specific message.
   def assert_error(error)
     errors = subject.validate(machine)
-    raise "Error #{error} was not raised" if !errors["dsc provisioner"].include? error
+    raise "Error #{error} was not raised" if !errors["dsc provisioner"].any? { |val| error =~ val }
   end
 
   # Asserts that no failures should occur in the current (config) validation run.
