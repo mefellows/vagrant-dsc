@@ -147,6 +147,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(subject).to receive(:wait_for_dsc_completion) 
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
       expect(guest).to_not receive(:capability).with(:wait_for_reboot)
 
@@ -159,6 +160,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(subject).to receive(:wait_for_dsc_completion)
       allow(guest).to receive(:capability?)
       allow(guest).to receive(:capability)
 
@@ -174,6 +176,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(subject).to receive(:wait_for_dsc_completion)
       allow(guest).to receive(:capability?)
       allow(guest).to receive(:capability)
 
@@ -192,6 +195,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(communicator).to receive(:upload)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(subject).to receive(:wait_for_dsc_completion)
       allow(guest).to receive(:capability?)
       allow(guest).to receive(:capability)
 
@@ -221,6 +225,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(communicator).to receive(:shell).and_return(shell)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "Sucess")
       allow(subject).to receive(:get_configuration_status).and_return("Sucess")
+      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
       expect(guest).to receive(:capability).with(:wait_for_reboot)
 
       subject.wait_for_dsc_completion
@@ -232,6 +237,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(communicator).to receive(:shell).and_return(shell)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingReboot", "Busy", "Idle")
       allow(subject).to receive(:get_configuration_status).and_return("Success")
+      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
       expect(guest).to receive(:capability).twice.with(:wait_for_reboot)
 
       subject.wait_for_dsc_completion
@@ -244,6 +250,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(guest).to receive(:capability).with(:wait_for_reboot)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingConfiguration")
       allow(subject).to receive(:get_configuration_status).and_return("Failure")
+      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
       expect(subject).to receive(:show_dsc_failure_message)
 
       subject.wait_for_dsc_completion
