@@ -1,5 +1,6 @@
 require "log4r"
 require 'erb'
+require "vagrant/util/powershell"
 
 module VagrantPlugins
   module DSC
@@ -99,6 +100,51 @@ module VagrantPlugins
         write_dsc_runner_script(generate_dsc_runner_script)
 
         run_dsc_apply
+
+        wait_for_dsc_completion
+      end
+
+      # Waits for the completion of the dsc configuration if dsc needs reboots. This currntly only works for WMF5 and needs wait_for_reboot
+      def wait_for_dsc_completion
+        return if Vagrant::Util::PowerShell.version.to_i < 5 || !@machine.guest.capability?(:wait_for_reboot)
+
+        dsc_running = true
+
+        while dsc_running
+          case get_lcm_state
+            when "PendingReboot"
+              @machine.ui.info("DSC needs reboot. Wait for the completion of DSC.")
+              @machine.guest.capability(:wait_for_reboot)
+
+            # Do not Know a way to reattch to dsc job, therefore check periodically the state
+            when "Busy"
+              sleep 10
+            else
+              dsc_running = false
+          end
+        end
+
+        if (get_configuration_status == "Failure")
+          @machine.ui.error(I18n.t("failure_status"))
+          show_dsc_failure_message
+        end
+      end
+
+      def get_lcm_state
+        state = @machine.communicate.shell.powershell("(Get-DscLocalConfigurationManager).LCMState")
+        return state[:data][0][:stdout]
+      end
+
+      def get_configuration_status
+        status = @machine.communicate.shell.powershell("(Get-DscConfigurationStatus).Status")
+        return status[:data][0][:stdout]
+      end
+
+      def show_dsc_failure_message
+        dsc_error_ps = "Get-WinEvent \"Microsoft-Windows-Dsc/Operational\" | Where-Object {$_.LevelDisplayName -eq \"Error\" -and $_.Message.StartsWith(\"Job $((Get-DscConfigurationStatus).JobId)\" )} | foreach { $_.Message }"
+        @machine.communicate.shell.powershell(dsc_error_ps) do |type,data|
+          @machine.ui.error(data, prefix: false)
+        end
       end
 
       # Cleanup after a destroy action.
