@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$shell_script = <<SCRIPT
+  # config desired state
+  . C:\\vagrant\\manifests\\LCMConfig.ps1
+  LCMConfig
+  Set-DscLocalConfigurationManager -Path ".\\LCMConfig"
+SCRIPT
+
+VAGRANTFILE_API_VERSION = "2"
+
+# linked clone feature requires 1.8
+Vagrant.require_version ">= 1.8" 
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "mwrock/Windows2016"
+  config.vm.guest = :windows
+  config.vm.communicator = "winrm"
+
+  # we do not need, the following config, but gives some convenience
+  config.vm.provider "virtualbox" do |v|
+    # Link clone, get a faster up after destroy
+    v.linked_clone = true
+    # Get the clipboard to interact with host
+    v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+  end
+
+  config.vm.provision "shell", inline: $shell_script
+
+  config.vm.provision "dsc" do |dsc|
+    dsc.configuration_file  = "Reboot.ps1"
+    dsc.configuration_name = "Reboot"
+    dsc.manifests_path = "manifests"      
+  end
+end

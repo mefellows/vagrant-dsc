@@ -38,3 +38,5 @@ en:
         "Operation unsupported / not-yet implemented: %{operation}"
       absolute_module_path: |-
         "Absolute 'module_path' not allowed. Please provide a path relative to your Vagrantfile."
+      failure_status: |-
+        "DSC Status is \"Failure\"."

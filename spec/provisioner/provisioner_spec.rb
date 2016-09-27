@@ -133,6 +133,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(subject).to receive(:verify_shared_folders).and_return(true)
       allow(subject).to receive(:verify_dsc).and_return(true)
       allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(subject).to receive(:wait_for_dsc_completion)
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
       expect(guest).to receive(:capability).with(:wait_for_reboot)
 
@@ -198,6 +199,81 @@ describe VagrantPlugins::DSC::Provisioner do
       expect(subject).to receive(:verify_shared_folders).with(check)
 
       subject.provision
+    end
+
+    it "should provision wait for dsc" do
+      allow(communicator).to receive(:sudo)
+      allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
+      allow(subject).to receive(:verify_shared_folders).and_return(true)
+      allow(subject).to receive(:verify_dsc).and_return(true)
+      allow(subject).to receive(:run_dsc_apply).and_return(true)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(guest).to receive(:capability).with(:wait_for_reboot)
+      expect(subject).to receive(:wait_for_dsc_completion)
+
+      subject.provision
+    end
+
+    it "should wait for pending reboot" do
+      allow_any_instance_of(Object).to receive(:sleep)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(communicator).to receive(:shell).and_return(shell)
+      allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "Sucess")
+      allow(subject).to receive(:get_configuration_status).and_return("Sucess")
+      expect(guest).to receive(:capability).with(:wait_for_reboot)
+
+      subject.wait_for_dsc_completion
+    end
+
+    it "should wait for multi pending reboots" do
+      allow_any_instance_of(Object).to receive(:sleep)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(communicator).to receive(:shell).and_return(shell)
+      allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingReboot", "Busy", "Idle")
+      allow(subject).to receive(:get_configuration_status).and_return("Success")
+      expect(guest).to receive(:capability).twice.with(:wait_for_reboot)
+
+      subject.wait_for_dsc_completion
+    end
+
+    it "should show error message on failure" do
+      allow_any_instance_of(Object).to receive(:sleep)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(communicator).to receive(:shell).and_return(shell)
+      allow(guest).to receive(:capability).with(:wait_for_reboot)
+      allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingConfiguration")
+      allow(subject).to receive(:get_configuration_status).and_return("Failure")
+      expect(subject).to receive(:show_dsc_failure_message)
+
+      subject.wait_for_dsc_completion
+    end
+
+    it "should get the lcm state" do
+      allow(communicator).to receive(:shell).and_return(shell)
+      expect(shell).to receive(:powershell).with("(Get-DscLocalConfigurationManager).LCMState").and_return({:data => [{:stdout => "LCMState"}]})
+      
+      expect(subject.get_lcm_state).to eq("LCMState")
+    end
+
+    it "should get the configuration status" do
+      allow(communicator).to receive(:shell).and_return(shell)
+      expect(shell).to receive(:powershell).with("(Get-DscConfigurationStatus).Status").and_return({:data => [{:stdout => "Status"}]})
+
+      expect(subject.get_configuration_status).to eq("Status")
+    end
+
+    it "should get the dsc error message" do
+      allow(communicator).to receive(:shell).and_return(shell)
+      expect(shell).to receive(:powershell)
+        .with("Get-WinEvent \"Microsoft-Windows-Dsc/Operational\" | Where-Object {$_.LevelDisplayName -eq \"Error\" -and $_.Message.StartsWith(\"Job $((Get-DscConfigurationStatus).JobId)\" )} | foreach { $_.Message }")
+        .and_yield(:stdout, "\r\n")
+        .and_yield(:stdout, "\r\n")
+        .and_yield(:stdout, "Job AE9233FD-8491-11E6-9810-080027F3ADE1} : \r\n          MIResult: 1\r\n")
+      expect(ui).to receive(:error).with("\r\n", :prefix=>false).twice
+      expect(ui).to receive(:error).with("Job AE9233FD-8491-11E6-9810-080027F3ADE1} : \r\n          MIResult: 1\r\n", :prefix=>false)
+
+      subject.show_dsc_failure_message
     end
 
     it "should verify DSC binary exists" do
