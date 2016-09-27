@@ -144,6 +144,16 @@ bundle exec vagrant up
 
 There is a test Vagrant DSC setup in `./development` that is a good example of a simple acceptance test.
 
+### Visual Studio Code
+
+You can run the test from Visual Studio Code. This needs the binstubs from bundler. Run
+```
+bundler install --binstubs
+```
+to get them.
+
+After this you can run the tests with F5.
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/vagrant-dsc/fork )
