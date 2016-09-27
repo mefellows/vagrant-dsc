@@ -85,8 +85,9 @@ Vagrant DSC will create and manage it for you automatically.
 
 ## Example
 
-There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development) Vagrant setup used for development of this plugin.
-This is a great real-life example to get you on your way.
+There is a [sample](https://github.com/mefellows/vagrant-dsc/tree/master/development/web) 
+Vagrant setup used for development of this plugin. This is a great real-life example 
+to get you on your way.
 
 ## Creating Windows Vagrant boxes
 
