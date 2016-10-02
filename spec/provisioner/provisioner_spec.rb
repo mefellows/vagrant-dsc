@@ -225,7 +225,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(communicator).to receive(:shell).and_return(shell)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "Sucess")
       allow(subject).to receive(:get_configuration_status).and_return("Sucess")
-      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
+      allow(subject).to receive(:get_guest_powershell_version).and_return("5")
       expect(guest).to receive(:capability).with(:wait_for_reboot)
 
       subject.wait_for_dsc_completion
@@ -237,7 +237,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(communicator).to receive(:shell).and_return(shell)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingReboot", "Busy", "Idle")
       allow(subject).to receive(:get_configuration_status).and_return("Success")
-      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
+      allow(subject).to receive(:get_guest_powershell_version).and_return("5")
       expect(guest).to receive(:capability).twice.with(:wait_for_reboot)
 
       subject.wait_for_dsc_completion
@@ -250,10 +250,26 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(guest).to receive(:capability).with(:wait_for_reboot)
       allow(subject).to receive(:get_lcm_state).and_return("PendingReboot", "Busy", "PendingConfiguration")
       allow(subject).to receive(:get_configuration_status).and_return("Failure")
-      allow(Vagrant::Util::PowerShell).to receive(:version).and_return("5")
+      allow(subject).to receive(:get_guest_powershell_version).and_return("5")
       expect(subject).to receive(:show_dsc_failure_message)
 
       subject.wait_for_dsc_completion
+    end
+
+    it "should not get the lcm state if powershell version is 4" do
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(communicator).to receive(:shell).and_return(shell)
+      allow(subject).to receive(:get_guest_powershell_version).and_return("4")
+      expect(subject).to_not receive(:get_lcm_state)
+
+      subject.wait_for_dsc_completion
+    end
+
+    it "should get the guest powershell version" do
+      allow(communicator).to receive(:shell).and_return(shell)
+      expect(shell).to receive(:powershell).with("$PSVersionTable.PSVersion.Major").and_return({:data => [{:stdout => "4"}]})
+      
+      expect(subject.get_guest_powershell_version).to eq("4")
     end
 
     it "should get the lcm state" do

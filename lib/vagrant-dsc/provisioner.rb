@@ -1,6 +1,5 @@
 require "log4r"
 require 'erb'
-require "vagrant/util/powershell"
 
 module VagrantPlugins
   module DSC
@@ -106,8 +105,8 @@ module VagrantPlugins
 
       # Waits for the completion of the dsc configuration if dsc needs reboots. This currntly only works for WMF5 and needs wait_for_reboot
       def wait_for_dsc_completion
-        return if Vagrant::Util::PowerShell.version.to_i < 5 || !@machine.guest.capability?(:wait_for_reboot)
-
+        powershell_version = get_guest_powershell_version
+        return if powershell_version.to_i < 5 || !@machine.guest.capability?(:wait_for_reboot)
         dsc_running = true
 
         while dsc_running
@@ -128,6 +127,11 @@ module VagrantPlugins
           @machine.ui.error(I18n.t("failure_status"))
           show_dsc_failure_message
         end
+      end
+
+      def get_guest_powershell_version
+        version = @machine.communicate.shell.powershell("$PSVersionTable.PSVersion.Major")
+        return version[:data][0][:stdout]
       end
 
       def get_lcm_state
