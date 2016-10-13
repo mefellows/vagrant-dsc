@@ -17,7 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "mfellows/windows2012r2"
-  config.vm.box_version = "1.0.0"
+  config.vm.box_version = "1.0.1"
 
 
   hostname = "vagrantdsc.local"
