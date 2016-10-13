@@ -64,6 +64,14 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # @return [Array] Set of relative module paths.
     dsc.module_path = ["manifests", "modules"]
 
+    # Set of modules that should installed from the [PowerShell Gallery](https://www.powershellgallery.com/)
+    #
+    # Requires Powershell 5 or PowerShellGet on box installed
+    #
+    # These modules are downloaded and installed when provisong. 
+    # If module is allready installed no update is done.
+    dsc.module_install = ["xNetworking", "xComputerManagement"]
+
     # The type of synced folders to use when sharing the data
     # required for the provisioner to work properly.
     #

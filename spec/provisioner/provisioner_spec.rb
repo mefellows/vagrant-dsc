@@ -363,6 +363,7 @@ echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
+
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"\"
@@ -406,6 +407,7 @@ echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
+
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"../manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"\"
@@ -448,6 +450,7 @@ echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
+
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"\"
@@ -487,6 +490,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
+
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -530,6 +534,7 @@ $absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tm
 echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
+
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
@@ -584,6 +589,7 @@ echo \"Adding to path: $absoluteModulePaths\"
 $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
+
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
 echo \"PSModulePath Configured: ${env:PSModulePath}\"
 echo \"\"
@@ -597,6 +603,55 @@ cd \"/tmp/vagrant-dsc-1\"
 $StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
 $Config = $(iex (Get-Content (Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyConfig.psd1\" -Resolve) | Out-String))
 MyWebsite -OutputPath $StagingPath  -ConfigurationData $Config
+
+# Start a DSC Configuration run
+Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath
+del $StagingPath\\*.mof
+"
+
+        expect(script).to eq(expect_script)
+      end
+    end
+
+    context "with module_install" do
+      it "should generate a valid powershell command" do
+        root_config.module_install = ["xNetworking", "xSQLServer"]
+
+        script = subject.generate_dsc_runner_script
+        expect_script = "#
+# DSC Runner.
+#
+# Bootstraps the DSC environment, sets up configuration data
+# and runs the DSC Configuration.
+#
+#
+
+# Set the local PowerShell Module environment path
+$absoluteModulePaths = [string]::Join(\";\", (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { $_ | Resolve-Path }))
+
+echo \"Adding to path: $absoluteModulePaths\"
+$env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
+(\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
+
+Write-Host \"Ensure Modules\"
+if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne \"Trusted\") {
+    Set-PSRepository -Name PSGallery -InstallationPolicy \"Trusted\"
+}
+# Install-Modules only installs if the module is not installed
+\"xNetworking;xSQLServer\".Split(\";\") | foreach { Install-Module $_ }
+
+$script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
+echo \"PSModulePath Configured: ${env:PSModulePath}\"
+echo \"\"
+echo \"Running Configuration file: ${script}\"
+
+# Generate the MOF file, only if a MOF path not already provided.
+# Import the Manifest
+. $script
+
+cd \"/tmp/vagrant-dsc-1\"
+$StagingPath = $(Join-Path \"/tmp/vagrant-dsc-1\" \"staging\")
+MyWebsite -OutputPath $StagingPath 
 
 # Start a DSC Configuration run
 Start-DscConfiguration -Force -Wait -Verbose -Path $StagingPath

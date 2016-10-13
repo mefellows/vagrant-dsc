@@ -215,6 +215,7 @@ module VagrantPlugins
             configuration_name: @config.configuration_name,
             manifests_path: @config.manifests_path,
             temp_path: @config.temp_dir,
+            module_install: @config.module_install.nil? ? "" : @config.module_install.join(";"),
             parameters: @config.configuration_params.map { |k,v| "#{k}" + (!v.nil? ? " \"#{v}\"": '') }.join(" ")
         })
       end

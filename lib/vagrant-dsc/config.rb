@@ -61,6 +61,9 @@ module VagrantPlugins
       # Temporary working directory on the guest machine.
       attr_accessor :temp_dir
 
+      # Modules to install
+      attr_accessor :module_install
+
       # Fully qualified path to the configuration file.
       #
       # Do not override this.
@@ -83,6 +86,7 @@ module VagrantPlugins
         @configuration_params     = {}
         @synced_folder_type       = UNSET_VALUE
         @temp_dir                 = UNSET_VALUE
+        @module_install           = UNSET_VALUE
         @logger = Log4r::Logger.new("vagrant::vagrant_dsc")
       end
 
@@ -99,6 +103,7 @@ module VagrantPlugins
         @module_path              = nil if @module_path == UNSET_VALUE
         @synced_folder_type       = nil if @synced_folder_type == UNSET_VALUE
         @temp_dir                 = nil if @temp_dir == UNSET_VALUE
+        @module_install           = nil if @module_install == UNSET_VALUE
         @mof_path                 = nil if @mof_path == UNSET_VALUE
         @configuration_name       = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
         @manifests_path           = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE

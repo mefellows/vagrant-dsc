@@ -15,6 +15,15 @@ $env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
 ("<%= options[:module_paths] %>".Split(";") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 <% end %>
 
+<% if !options[:module_install].empty?  %>
+Write-Host "Ensure Modules"
+if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne "Trusted") {
+    Set-PSRepository -Name PSGallery -InstallationPolicy "Trusted"
+}
+# Install-Modules only installs if the module is not installed
+"<%= options[:module_install] %>".Split(";") | foreach { Install-Module $_ }
+<% end %>
+
 $script = $(Join-Path "<%= options[:temp_path] %>" "<%= options[:configuration_file_path] %>" -Resolve)
 echo "PSModulePath Configured: ${env:PSModulePath}"
 echo ""
