@@ -4,13 +4,20 @@
 [![Coverage Status](https://coveralls.io/repos/mefellows/vagrant-dsc/badge.png?branch=master)](https://coveralls.io/r/mefellows/vagrant-dsc?branch=master)
 [![Gem Version](https://badge.fury.io/rb/vagrant-dsc.svg)](http://badge.fury.io/rb/vagrant-dsc)
 
-[Desired State Configuration](http://technet.microsoft.com/en-au/library/dn249912.aspx) provisioning plugin for Vagrant, enabling you to quickly configure & bootstrap a Windows Virtual Machine in a repeatable, reliable fashion - the Vagrant way.
+[Desired State Configuration](https://msdn.microsoft.com/en-us/powershell/dsc/overview) provisioning plugin for Vagrant, enabling you to quickly configure & bootstrap a Windows Virtual Machine in a repeatable, reliable fashion - the Vagrant way.
 
 .NET Devs - no more excuses...
 
 > But it works on my machine!?
 
 ...is a thing of the past
+
+## Features
+
+1. Automated provisioning using [PowerShell DSC](https://msdn.microsoft.com/en-us/powershell/dsc/overview)
+2. Install modules from the [Powershell Gallery](https://www.powershellgallery.com/) 
+   with PowerShellGet / PowerShell5
+3. Windows development machine from zero to dev-ready < 5 minutes!
 
 ## Installation
 
@@ -60,16 +67,15 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     #
     # These paths are added to the DSC Configuration running
     # environment to enable local modules to be addressed.
-    #
-    # @return [Array] Set of relative module paths.
     dsc.module_path = ["manifests", "modules"]
 
-    # Set of modules that should installed from the [PowerShell Gallery](https://www.powershellgallery.com/)
+    # Set of modules to install from the PowerShell Gallery 
+    # (https://www.powershellgallery.com/).
     #
-    # Requires Powershell 5 or PowerShellGet on box installed
+    # Requires PowerShell 5 or PowerShellGet installed on guest machine.
     #
-    # These modules are downloaded and installed when provisong. 
-    # If module is allready installed no update is done.
+    # These modules are downloaded and installed when provisioning,
+    # if a module is already installed it is a no-op.
     dsc.module_install = ["xNetworking", "xComputerManagement"]
 
     # The type of synced folders to use when sharing the data
@@ -131,7 +137,9 @@ We may consider automatically installing and configuring DSC in a future release
 
 Before getting started, read the Vagrant plugin [development basics](https://docs.vagrantup.com/v2/plugins/development-basics.html) and [packaging](https://docs.vagrantup.com/v2/plugins/packaging.html) documentation.
 
-You will need Ruby 1.9.3+ and Bundler installed before proceeding.
+You will need Ruby 2.1.5 and Bundler v1.12.5 installed before proceeding.
+
+_NOTE_: it _must_ be bundler v1.12.5 due to a hard dependency in Vagrant at this time.
 
 ```
 git clone git@github.com:mefellows/vagrant-dsc.git
@@ -151,6 +159,16 @@ bundle exec vagrant up
 ```
 
 There is a test Vagrant DSC setup in `./development` that is a good example of a simple acceptance test.
+
+### Multiple Bundlers?
+
+If you have multiple Bundler versions, you can still use 1.12.5 with the following:
+
+```
+bundle _1.12.5_ <command>
+```
+
+e.g. `bundle _1.12.5_ exec rake spec`
 
 ### Visual Studio Code
 

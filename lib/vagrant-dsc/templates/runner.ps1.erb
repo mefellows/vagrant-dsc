@@ -20,7 +20,7 @@ Write-Host "Ensure Modules"
 if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne "Trusted") {
     Set-PSRepository -Name PSGallery -InstallationPolicy "Trusted"
 }
-# Install-Modules only installs if the module is not installed
+# Install-Module only installs if the module is not already installed
 "<%= options[:module_install] %>".Split(";") | foreach { Install-Module $_ }
 <% end %>
 

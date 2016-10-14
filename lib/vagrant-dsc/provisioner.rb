@@ -103,7 +103,7 @@ module VagrantPlugins
         rescue VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed
           # when install set a domain controller windows kills the active connection with a AuthenticationFailed.
           # The DSC job is still running and new connections are possible, so try to wait 
-          @machine.ui.info(I18n.t("vagrant_dsc.winRMAuthorizationError_recover"))
+          @machine.ui.info(I18n.t("vagrant_dsc.errors.winrm_authorization_error_recover"))
         end
         
         wait_for_dsc_completion
@@ -196,13 +196,7 @@ module VagrantPlugins
       # Operation is current unsupported, but is likely to be enabled
       # as a flag when the plugin detects an unsupported OS.
       def install_dsc
-        # raise DSCError, I18n.t("vagrant_dsc.errors.manifest_missing", operation: "install_dsc")
         raise DSCUnsupportedOperation,  :operation => "install_dsc"
-        # Install chocolatey
-
-        # Ensure .NET 4.5 installed
-
-        # Ensure WMF 4.0 is installed
       end
 
       # Generates a PowerShell DSC runner script from an ERB template
@@ -232,7 +226,6 @@ module VagrantPlugins
       # @return [String] the Path to the uploaded location on the guest machine.
       def write_dsc_runner_script(script)
         guest_script_path = DSC_GUEST_RUNNER_PATH
-        # TODO: Get a counter in here in case of multiple runs
         file = Tempfile.new(["vagrant-dsc-runner", "ps1"])
         begin
           file.write(script)

@@ -338,14 +338,8 @@ describe VagrantPlugins::DSC::Provisioner do
     end
 
     it "should raise an error if DSC version is invalid" do
-      # shell = double("WinRMShell")
-      # allow(communicator).to receive(:shell).and_return(shell)
-      # allow(communicator).to receive(:create_shell).and_return(shell)
-
-      # TODO: Create an actual Communicator object and mock out methods/calls to isolate this behaviour better
       expect(communicator).to receive(:test).with("(($PSVersionTable | ConvertTo-json | ConvertFrom-Json).PSVersion.Major) -ge 4", {:error_class=>VagrantPlugins::DSC::DSCError, :error_key=>:dsc_incorrect_PowerShell_version})
       allow(subject).to receive(:verify_binary).and_return(true)
-      # expect { subject.verify_dsc }.to raise_error("Unable to detect a working DSC environment. Please ensure powershell v4+ is installed, including WMF 4+.")
       subject.verify_dsc
     end
 
@@ -664,7 +658,7 @@ Write-Host \"Ensure Modules\"
 if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne \"Trusted\") {
     Set-PSRepository -Name PSGallery -InstallationPolicy \"Trusted\"
 }
-# Install-Modules only installs if the module is not installed
+# Install-Module only installs if the module is not already installed
 \"xNetworking;xSQLServer\".Split(\";\") | foreach { Install-Module $_ }
 
 $script = $(Join-Path \"/tmp/vagrant-dsc-1\" \"manifests/MyWebsite.ps1\" -Resolve)
