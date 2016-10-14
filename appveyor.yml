@@ -1,6 +1,7 @@
 install:
   - set PATH=C:\Ruby22\bin;%PATH%
-  - bundle install
+  - gem install bundler -v 1.12.5
+  - bundle _1.12.5_ install  
 
 build: off
 
@@ -10,4 +11,4 @@ before_test:
   - bundle -v
 
 test_script:
-  - bundle exec rake spec
+  - bundle _1.12.5_ exec rake spec
