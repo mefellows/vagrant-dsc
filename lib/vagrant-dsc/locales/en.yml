@@ -40,3 +40,6 @@ en:
         "Absolute 'module_path' not allowed. Please provide a path relative to your Vagrantfile."
       failure_status: |-
         "DSC Status is \"Failure\"."
+
+    winRMAuthorizationError_recover: |-
+      The Host disconnect the active connection. Try to wait for the completion of DSC.

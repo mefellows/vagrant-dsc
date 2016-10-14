@@ -219,6 +219,33 @@ describe VagrantPlugins::DSC::Provisioner do
       subject.provision
     end
 
+    it "should try to recover if AuthenticationFailed" do
+      allow(communicator).to receive(:sudo)
+      allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
+      allow(subject).to receive(:verify_shared_folders).and_return(true)
+      allow(subject).to receive(:verify_dsc).and_return(true)
+      allow(subject).to receive(:run_dsc_apply).and_raise(VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(guest).to receive(:capability).with(:wait_for_reboot)
+      expect(subject).to receive(:wait_for_dsc_completion)
+
+      subject.provision
+    end
+
+    it "should not try to recover from other exceptions" do
+      allow(communicator).to receive(:sudo)
+      allow(communicator).to receive(:test)
+      allow(communicator).to receive(:upload)
+      allow(subject).to receive(:verify_shared_folders).and_return(true)
+      allow(subject).to receive(:verify_dsc).and_return(true)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(guest).to receive(:capability).with(:wait_for_reboot)
+      allow(subject).to receive(:run_dsc_apply).and_raise()
+
+      expect{ subject.provision }.to raise_error(RuntimeError)
+    end
+
     it "should wait for pending reboot" do
       allow_any_instance_of(Object).to receive(:sleep)
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
