@@ -98,8 +98,14 @@ module VagrantPlugins
 
         write_dsc_runner_script(generate_dsc_runner_script)
 
-        run_dsc_apply
-
+        begin
+          run_dsc_apply
+        rescue VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed
+          # when install set a domain controller windows kills the active connection with a AuthenticationFailed.
+          # The DSC job is still running and new connections are possible, so try to wait 
+          @machine.ui.info(I18n.t("vagrant_dsc.winRMAuthorizationError_recover"))
+        end
+        
         wait_for_dsc_completion
       end
 
