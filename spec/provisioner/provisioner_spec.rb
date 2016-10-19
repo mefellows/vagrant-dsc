@@ -655,6 +655,11 @@ $env:PSModulePath=\"$absoluteModulePaths;${env:PSModulePath}\"
 (\"/tmp/vagrant-dsc-1/modules-0;/tmp/vagrant-dsc-1/modules-1\".Split(\";\") | ForEach-Object { gci -Recurse  $_ | ForEach-Object { Unblock-File  $_.FullName} })
 
 Write-Host \"Ensure Modules\"
+Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue -ErrorVariable NuGetError | Out-Null
+if ($NuGetError) {
+    Write-Host \"Install Package Provider Nuget\"
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+}
 if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne \"Trusted\") {
     Set-PSRepository -Name PSGallery -InstallationPolicy \"Trusted\"
 }

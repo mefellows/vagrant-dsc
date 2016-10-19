@@ -17,6 +17,11 @@ $env:PSModulePath="$absoluteModulePaths;${env:PSModulePath}"
 
 <% if !options[:module_install].empty?  %>
 Write-Host "Ensure Modules"
+Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue -ErrorVariable NuGetError | Out-Null
+if ($NuGetError) {
+    Write-Host "Install Package Provider Nuget"
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+}
 if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne "Trusted") {
     Set-PSRepository -Name PSGallery -InstallationPolicy "Trusted"
 }
