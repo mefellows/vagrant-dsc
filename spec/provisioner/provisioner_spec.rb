@@ -23,7 +23,7 @@ describe VagrantPlugins::DSC::Provisioner do
   describe "configure" do
     before do
       allow(machine).to receive(:root_config).and_return(root_config)
-      machine.stub(config: root_config, env: env)
+      allow(machine).to receive_messages(config: root_config, env: env)
       root_config.module_path = module_path
       root_config.configuration_file = configuration_file
       root_config.finalize!
@@ -79,7 +79,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
     before do
       allow(machine).to receive(:root_config).and_return(root_config)
-      machine.stub(config: root_config, env: env, communicate: communicator)
+      allow(machine).to receive_messages(config: root_config, env: env, communicate: communicator)
       root_config.module_path = module_path
       root_config.configuration_file = configuration_file
       root_config.finalize!
@@ -123,7 +123,7 @@ describe VagrantPlugins::DSC::Provisioner do
       root_config.validate(machine)
       subject.configure(root_config)
       # allow(root_config).to receive(:vm).and_return(vm)
-      machine.stub(config: root_config, env: env, communicate: communicator, guest: guest)
+      allow(machine).to receive_messages(config: root_config, env: env, communicate: communicator, guest: guest)
     end
 
     it "should allow reboot capability when capability exists" do
@@ -357,7 +357,7 @@ describe VagrantPlugins::DSC::Provisioner do
 
       allow(machine).to receive(:root_config).and_return(root_config)
       root_config.configuration_file = configuration_file
-      machine.stub(config: root_config, env: env)
+      allow(machine).to receive_messages(config: root_config, env: env)
       root_config.module_path = module_path
       root_config.configuration_file = configuration_file
       root_config.finalize!
@@ -584,7 +584,7 @@ del $StagingPath\\*.mof
         allow(machine).to receive(:root_config).and_return(root_config)
         root_config.configuration_file = configuration_file
         root_config.configuration_data_file = configuration_data_file
-        machine.stub(config: root_config, env: env)
+        allow(machine).to receive_messages(config: root_config, env: env)
         root_config.module_path = module_path
         root_config.configuration_file = configuration_file
         root_config.finalize!
@@ -695,7 +695,7 @@ del $StagingPath\\*.mof
       script = "myscript"
       path = "/local/runner/path"
       guest_path = "c:/tmp/vagrant-dsc-runner.ps1"
-      machine.stub(config: root_config, env: env, communicate: communicator)
+      allow(machine).to receive_messages(config: root_config, env: env, communicate: communicator)
       file = double("file")
       allow(file).to receive(:path).and_return(path)
       allow(Tempfile).to receive(:new) { file }

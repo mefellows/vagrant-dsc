@@ -6,10 +6,10 @@ require 'vagrant-dsc/plugin'
 require 'rspec/its'
 require 'base'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,
     Coveralls::SimpleCov::Formatter
-]
+])
 
 SimpleCov.start do
   coverage_dir('tmp/coverage')
