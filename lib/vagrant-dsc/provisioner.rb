@@ -247,17 +247,15 @@ module VagrantPlugins
           manifest: config.configuration_file))
 
         # A bit of an ugly dance, but this is how we get neat, colourised output and exit codes from a Powershell run
-        last_type = nil
-        new_line = ""
         error = false
         machine.communicate.shell.powershell("powershell -ExecutionPolicy Bypass -OutputFormat Text -file #{DSC_GUEST_RUNNER_PATH}") do |type, data|
           if !data.chomp.empty?
             error = true if type == :stderr
             if [:stderr, :stdout].include?(type)
               color = type == :stdout ? :green : :red
-              new_line = "\r\n" if last_type != nil and last_type != type
-              last_type = type
-              @machine.ui.info( new_line + data.chomp, color: color, new_line: false, prefix: false)
+              # Remove the \r\n since the dsc output uses this if line is to long. A Line break is a simple \n
+              data = data.gsub(/\r\n/,"") if type == :stdout
+              @machine.ui.info( data.strip(), color: color, prefix: false)
             end
           end
         end
