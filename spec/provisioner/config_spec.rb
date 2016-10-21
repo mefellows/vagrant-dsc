@@ -17,7 +17,7 @@ describe VagrantPlugins::DSC::Config do
     before do
       env = double("environment", root_path: "/tmp/vagrant-dsc-path")
       config = double("config")
-      machine.stub(config: config, env: env)
+      allow(machine).to receive_messages(config: config, env: env)
 
       allow(machine).to receive(:root_path).and_return("/c/foo")
     end
@@ -65,7 +65,7 @@ describe VagrantPlugins::DSC::Config do
     it "should detect the fully qualified path to the manifest automatically" do
       env = double("environment", root_path: "")
       config = double("config")
-      machine.stub(config: config, env: env)
+      allow(machine).to receive_messages(config: config, env: env)
       allow(machine).to receive(:root_path).and_return(".")
 
       subject.configuration_file = "manifests/MyWebsite.ps1"
@@ -83,7 +83,7 @@ describe VagrantPlugins::DSC::Config do
     before do
       env = double("environment", root_path: "")
       config = double("config")
-      machine.stub(config: config, env: env)
+      allow(machine).to receive_messages(config: config, env: env)
 
       allow(machine).to receive(:root_path).and_return("/path/to/vagrant")
     end
@@ -138,7 +138,7 @@ describe VagrantPlugins::DSC::Config do
     it "should detect the fully qualified path to the configuration data file automatically" do
       env = double("environment", root_path: "")
       config = double("config")
-      machine.stub(config: config, env: env)
+      allow(machine).to receive_messages(config: config, env: env)
       allow(machine).to receive(:root_path).and_return(".")
 
       subject.configuration_data_file = "manifests/foo.psd1"
