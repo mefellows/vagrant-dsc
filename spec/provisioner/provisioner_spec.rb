@@ -716,7 +716,7 @@ del $StagingPath\\*.mof
       expect(shell).to receive(:powershell).with("powershell -ExecutionPolicy Bypass -OutputFormat Text -file c:/tmp/vagrant-dsc-runner.ps1").and_yield(:stdout, "provisioned!")
       root_config.configuration_file = configuration_file
       expect(ui).to receive(:info).with("\"Running DSC Provisioner with manifests/MyWebsite.ps1...\"")
-      expect(ui).to receive(:info).with("provisioned!", {color: :green, new_line: false, prefix: false}).once
+      expect(ui).to receive(:info).with("provisioned!", {color: :green, prefix: false}).once
 
       subject.run_dsc_apply
     end
@@ -727,8 +727,30 @@ del $StagingPath\\*.mof
 
       root_config.configuration_file = configuration_file
       expect(ui).to receive(:info).with("\"Running DSC Provisioner with manifests/MyWebsite.ps1...\"")
-      expect(ui).to receive(:info).with("not provisioned!", {color: :red, new_line: false, prefix: false}).once
+      expect(ui).to receive(:info).with("not provisioned!", {color: :red, prefix: false}).once
       expect(shell).to receive(:powershell).with("powershell -ExecutionPolicy Bypass -OutputFormat Text -file c:/tmp/vagrant-dsc-runner.ps1").and_yield(:stderr, "not provisioned!")
+
+      subject.run_dsc_apply
+    end
+
+        it "should format DSC Output correct" do
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(communicator).to receive(:shell).and_return(shell)
+
+      root_config.configuration_file = configuration_file
+      expect(ui).not_to receive(:info).with(/\r\n/, any_args)
+      expect(ui).not_to receive(:info).with(/^\n/, any_args)
+      expect(ui).not_to receive(:info).with(/\n$/, any_args)
+      expect(shell).to receive(:powershell)
+        .and_yield(:stout, "PSModulePath Configured: C:\\Users\\vagrant\\Documents\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules")
+        .and_yield(:stout, "\r\nRunning Configuration file: C:\\tmp\\vagrant-dsc-3\\manifests\\Reboot.ps1\r\n")
+        .and_yield(:stout, "\r\n    Directory: C:\\tmp\\vagrant-dsc-3\\staging\r\n\r\n\r\nMode                LastWriteTime         Length Name                                                                  \r\n----                -------------         ------ ----                                 \r\n-a----       10/17/2016   7:09 AM           3420 localhost.mof                                                         \r\n")
+        .and_yield(:stout, "VERBOSE: Perform operation 'Invoke CimMethod' with following parameters, ''methodName' = \r\nSendConfigurationApply,'className' = MSFT_DSCLocalConfigurationManager,'namespaceName' = \r\nroot/Microsoft/Windows/DesiredStateConfiguration'.")
+        .and_yield(:stout, "VERBOSE: An LCM method call arrived from computer WIN-QRTPA0OO7EK with user sid \r\nS-1-5-21-678342207-3002680417-1007590926-1000.\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Start  Set      ]\n")
+        .and_yield(:stout, "VERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Start  Resource ]  [[Script]Reboot]")
+        .and_yield(:stout, "\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Start  Test     ]  [[Script]Reboot]\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ End    Test     ]  [[Script]Reboot]  in 0.0000 seconds.\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Skip   Set      ]  [[Script]Reboot]\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ End    Resource ]  [[Script]Reboot]\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Start  Resource ]  [[Script]Error]\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ Start  Test     ]  [[Script]Error]\nVERBOSE: [WIN-QRTPA0OO7EK]: LCM:  [ End    Test     ]  [[Script]Error]  in 0.0000 seconds.\n")
+        .and_yield(:stderr, "PowerShell DSC resource MSFT_ScriptResource  failed to execute Test-TargetResource functionality with error message: \r\n")
+        .and_yield(:stderr, "\nVERBOSE: Operation 'Invoke CimMethod' complete.\nVERBOSE: Time taken for configuration job to complete is 0.198 seconds\n\r\n\r\n")
 
       subject.run_dsc_apply
     end
