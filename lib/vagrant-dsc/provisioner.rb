@@ -132,6 +132,7 @@ module VagrantPlugins
         if (get_configuration_status == "Failure")
           @machine.ui.error(I18n.t("failure_status"))
           show_dsc_failure_message
+          fail_vagrant_run_if_requested
         end
       end
 
@@ -154,6 +155,14 @@ module VagrantPlugins
         dsc_error_ps = "Get-WinEvent \"Microsoft-Windows-Dsc/Operational\" | Where-Object {$_.LevelDisplayName -eq \"Error\" -and $_.Message.StartsWith(\"Job $((Get-DscConfigurationStatus).JobId)\" )} | foreach { $_.Message }"
         @machine.communicate.shell.powershell(dsc_error_ps) do |type,data|
           @machine.ui.error(data, prefix: false)
+        end
+      end
+
+      def fail_vagrant_run_if_requested
+        if (@config.abort_vagrant_run_if_dsc_fails)
+          raise DSCError, :dsc_configuration_failed
+        else
+          @machine.ui.info("DSC execution failed. Set 'abort_vagrant_run_if_dsc_fails' to true to make this fail the build.")
         end
       end
 

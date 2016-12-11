@@ -283,6 +283,20 @@ describe VagrantPlugins::DSC::Provisioner do
       subject.wait_for_dsc_completion
     end
 
+    it "should throw on failure if requested" do
+      allow_any_instance_of(Object).to receive(:sleep)
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
+      allow(communicator).to receive(:shell).and_return(shell)
+      allow(guest).to receive(:capability).with(:wait_for_reboot)
+      allow(subject).to receive(:get_lcm_state).and_return("PendingConfiguration")
+      allow(subject).to receive(:get_configuration_status).and_return("Failure")
+      allow(subject).to receive(:get_guest_powershell_version).and_return("5")
+      expect(subject).to receive(:show_dsc_failure_message)
+      allow(root_config).to receive(:abort_vagrant_run_if_dsc_fails).and_return(true)
+
+      expect{ subject.wait_for_dsc_completion }.to raise_error(VagrantPlugins::DSC::DSCError)
+    end
+
     it "should not get the lcm state if powershell version is 4" do
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(true)
       allow(communicator).to receive(:shell).and_return(shell)
