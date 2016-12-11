@@ -159,10 +159,10 @@ module VagrantPlugins
       end
 
       def fail_vagrant_run_if_requested
-        if (@config.abort_vagrant_run_if_dsc_fails)
+        if (@config.abort_on_dsc_failure)
           raise DSCError, :dsc_configuration_failed
         else
-          @machine.ui.info("DSC execution failed. Set 'abort_vagrant_run_if_dsc_fails' to true to make this fail the build.")
+          @machine.ui.info("DSC execution failed. Set 'abort_on_dsc_failure' to true to make this fail the build.")
         end
       end
 

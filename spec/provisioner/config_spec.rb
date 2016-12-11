@@ -40,7 +40,7 @@ describe VagrantPlugins::DSC::Config do
     its("synced_folder_type")             { expect be_nil }
     its("temp_dir")                       { expect match /^\/tmp\/vagrant-dsc-*/ }
     its("working_directory")              { expect be_nil }
-    its("abort_vagrant_run_if_dsc_fails") { expect be_false }
+    its("abort_on_dsc_failure") { expect be_false }
   end
 
   describe "derived settings" do

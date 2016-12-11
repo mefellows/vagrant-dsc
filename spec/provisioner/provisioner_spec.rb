@@ -292,7 +292,7 @@ describe VagrantPlugins::DSC::Provisioner do
       allow(subject).to receive(:get_configuration_status).and_return("Failure")
       allow(subject).to receive(:get_guest_powershell_version).and_return("5")
       expect(subject).to receive(:show_dsc_failure_message)
-      allow(root_config).to receive(:abort_vagrant_run_if_dsc_fails).and_return(true)
+      allow(root_config).to receive(:abort_on_dsc_failure).and_return(true)
 
       expect{ subject.wait_for_dsc_completion }.to raise_error(VagrantPlugins::DSC::DSCError)
     end

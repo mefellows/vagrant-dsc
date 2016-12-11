@@ -74,7 +74,7 @@ module VagrantPlugins
       # Do not override this.
       attr_accessor :expanded_configuration_data_file
 
-      attr_accessor :abort_vagrant_run_if_dsc_fails
+      attr_accessor :abort_on_dsc_failure
 
       def initialize
         super
@@ -89,7 +89,7 @@ module VagrantPlugins
         @synced_folder_type             = UNSET_VALUE
         @temp_dir                       = UNSET_VALUE
         @module_install                 = UNSET_VALUE
-        @abort_vagrant_run_if_dsc_fails = UNSET_VALUE
+        @abort_on_dsc_failure = UNSET_VALUE
         @logger = Log4r::Logger.new("vagrant::vagrant_dsc")
       end
 
@@ -110,7 +110,7 @@ module VagrantPlugins
         @mof_path                       = nil if @mof_path == UNSET_VALUE
         @configuration_name             = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
         @manifests_path                 = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE
-        @abort_vagrant_run_if_dsc_fails = false if @abort_vagrant_run_if_dsc_fails == UNSET_VALUE
+        @abort_on_dsc_failure = false if @abort_on_dsc_failure == UNSET_VALUE
 
         # Can't supply them both!
         if (@configuration_file != nil && @mof_path != nil)

@@ -88,7 +88,7 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # Whether to abort the vagrant run if DSC fails.
     #
     # By default, this is false.
-    dsc.abort_vagrant_run_if_dsc_fails = true
+    dsc.abort_on_dsc_failure = true
 
     # Temporary working directory on the guest machine.
     dsc.temp_dir = "/tmp/vagrant-dsc"

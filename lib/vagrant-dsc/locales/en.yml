@@ -43,4 +43,4 @@ en:
       winrm_authorization_error_recover: |-
         The host terminated the active connection. Try to wait for the completion of DSC.
       dsc_configuration_failed: |-
-        Executing the DSC failed. Set 'abort_vagrant_run_if_dsc_fails' to false to ignore DSC errors.
+        Executing the DSC failed. Set 'abort_on_dsc_failure' to false to ignore DSC errors.
