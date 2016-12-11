@@ -85,6 +85,11 @@ In your Vagrantfile, add the following plugin and configure to your needs:
     # For example, you can set this to "nfs" to use NFS synced folders.
     dsc.synced_folder_type = "nfs"
 
+    # Whether to abort the vagrant run if DSC fails.
+    #
+    # By default, this is false.
+    dsc.abort_vagrant_run_if_dsc_fails = true
+
     # Temporary working directory on the guest machine.
     dsc.temp_dir = "/tmp/vagrant-dsc"
   end

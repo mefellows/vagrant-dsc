@@ -74,19 +74,22 @@ module VagrantPlugins
       # Do not override this.
       attr_accessor :expanded_configuration_data_file
 
+      attr_accessor :abort_vagrant_run_if_dsc_fails
+
       def initialize
         super
 
-        @configuration_file       = UNSET_VALUE
-        @configuration_data_file  = UNSET_VALUE
-        @manifests_path           = UNSET_VALUE
-        @configuration_name       = UNSET_VALUE
-        @mof_path                 = UNSET_VALUE
-        @module_path              = UNSET_VALUE
-        @configuration_params     = {}
-        @synced_folder_type       = UNSET_VALUE
-        @temp_dir                 = UNSET_VALUE
-        @module_install           = UNSET_VALUE
+        @configuration_file             = UNSET_VALUE
+        @configuration_data_file        = UNSET_VALUE
+        @manifests_path                 = UNSET_VALUE
+        @configuration_name             = UNSET_VALUE
+        @mof_path                       = UNSET_VALUE
+        @module_path                    = UNSET_VALUE
+        @configuration_params           = {}
+        @synced_folder_type             = UNSET_VALUE
+        @temp_dir                       = UNSET_VALUE
+        @module_install                 = UNSET_VALUE
+        @abort_vagrant_run_if_dsc_fails = UNSET_VALUE
         @logger = Log4r::Logger.new("vagrant::vagrant_dsc")
       end
 
@@ -98,15 +101,16 @@ module VagrantPlugins
         super
 
         # Null checks
-        @configuration_file       = "default.ps1" if @configuration_file == UNSET_VALUE
-        @configuration_data_file  = nil if @configuration_data_file == UNSET_VALUE
-        @module_path              = nil if @module_path == UNSET_VALUE
-        @synced_folder_type       = nil if @synced_folder_type == UNSET_VALUE
-        @temp_dir                 = nil if @temp_dir == UNSET_VALUE
-        @module_install           = nil if @module_install == UNSET_VALUE
-        @mof_path                 = nil if @mof_path == UNSET_VALUE
-        @configuration_name       = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
-        @manifests_path           = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE
+        @configuration_file             = "default.ps1" if @configuration_file == UNSET_VALUE
+        @configuration_data_file        = nil if @configuration_data_file == UNSET_VALUE
+        @module_path                    = nil if @module_path == UNSET_VALUE
+        @synced_folder_type             = nil if @synced_folder_type == UNSET_VALUE
+        @temp_dir                       = nil if @temp_dir == UNSET_VALUE
+        @module_install                 = nil if @module_install == UNSET_VALUE
+        @mof_path                       = nil if @mof_path == UNSET_VALUE
+        @configuration_name             = File.basename(@configuration_file, File.extname(@configuration_file)) if @configuration_name == UNSET_VALUE
+        @manifests_path                 = File.dirname(@configuration_file) if @manifests_path == UNSET_VALUE
+        @abort_vagrant_run_if_dsc_fails = false if @abort_vagrant_run_if_dsc_fails == UNSET_VALUE
 
         # Can't supply them both!
         if (@configuration_file != nil && @mof_path != nil)

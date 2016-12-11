@@ -29,17 +29,18 @@ describe VagrantPlugins::DSC::Config do
 
     before { subject.finalize! }
 
-    its("configuration_file")       { expect = "default.ps1" }
-    its("configuration_data_file")  { expect be_nil }
-    its("manifests_path")           { expect = "." }
-    its("configuration_name")       { expect = "default" }
-    its("mof_path")                 { expect be_nil }
-    its("module_path")              { expect be_nil }
-    its("options")                  { expect = [] }
-    its("configuration_params")     { expect = {} }
-    its("synced_folder_type")       { expect be_nil }
-    its("temp_dir")                 { expect match /^\/tmp\/vagrant-dsc-*/ }
-    its("working_directory")        { expect be_nil }
+    its("configuration_file")             { expect = "default.ps1" }
+    its("configuration_data_file")        { expect be_nil }
+    its("manifests_path")                 { expect = "." }
+    its("configuration_name")             { expect = "default" }
+    its("mof_path")                       { expect be_nil }
+    its("module_path")                    { expect be_nil }
+    its("options")                        { expect = [] }
+    its("configuration_params")           { expect = {} }
+    its("synced_folder_type")             { expect be_nil }
+    its("temp_dir")                       { expect match /^\/tmp\/vagrant-dsc-*/ }
+    its("working_directory")              { expect be_nil }
+    its("abort_vagrant_run_if_dsc_fails") { expect be_false }
   end
 
   describe "derived settings" do
