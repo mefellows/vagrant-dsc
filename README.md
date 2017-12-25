@@ -134,7 +134,7 @@ From the [DSC Book](https://www.penflip.com/powershellorg/the-dsc-book):
 
 We may consider automatically installing and configuring DSC in a future release of the plugin.
 
-## Uninistallation
+## Uninstallation
 
 ```vagrant plugin uninstall vagrant-dsc```
 
