@@ -130,7 +130,7 @@ module VagrantPlugins
         end
 
         if (get_configuration_status == "Failure")
-          @machine.ui.error(I18n.t("failure_status"))
+          @machine.ui.error(I18n.t("vagrant_dsc.errors.failure_status"))
           show_dsc_failure_message
           fail_vagrant_run_if_requested
         end
